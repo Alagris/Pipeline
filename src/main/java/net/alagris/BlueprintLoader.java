@@ -18,19 +18,21 @@ public class BlueprintLoader {
 		this.modulesPackage = modulesPackage;
 	}
 
-	public <T> Group<T> make(String json, Class<T> workType) throws JsonProcessingException, IOException {
-		return make(Blueprint.load(json), workType);
+	public <T, C extends GlobalConfig> Group<T> make(String json, Class<T> workType, Class<C> config)
+			throws JsonProcessingException, IOException {
+		return make(Blueprint.load(json, config), workType);
 	}
 
-	public <T> Group<T> make(File f, Class<T> workType) throws JsonProcessingException, IOException {
-		return make(Blueprint.load(f), workType);
+	public <T, C extends GlobalConfig> Group<T> make(File f, Class<T> workType, Class<C> config)
+			throws JsonProcessingException, IOException {
+		return make(Blueprint.load(f, config), workType);
 	}
 
-	public <T> Group<T> make(Blueprint blueprint, Class<T> workType) {
-		return make(blueprint.getPipeline(), workType);
+	public <T, C extends GlobalConfig> Group<T> make(Blueprint<C> blueprint, Class<T> workType) {
+		return make(blueprint.getPipeline(), workType, blueprint.getGlobal());
 	}
 
-	private <T> Group<T> make(ArrayList<Node> pipeline, Class<T> workType) {
+	private <T, C extends GlobalConfig> Group<T> make(ArrayList<Node> pipeline, Class<T> workType, C globalConfig) {
 
 		ArrayList<Pipework<T>> gr = ArrayLists.convert(new Converter<Node, Pipework<T>>() {
 
@@ -40,7 +42,7 @@ public class BlueprintLoader {
 				HashMap<String, Group<T>> alts = HashMaps.convert(new Converter<ArrayList<Node>, Group<T>>() {
 					@Override
 					public Group<T> convert(ArrayList<Node> f) {
-						return make(f, workType);
+						return make(f, workType, globalConfig);
 					}
 				}, f.getAlternatives());
 				Map<String, Group<T>> unmodAlts = Collections.unmodifiableMap(alts);
@@ -56,7 +58,10 @@ public class BlueprintLoader {
 							if (field.isAnnotationPresent(Config.class)) {
 								try {
 									String val = cnfg.get(field.getName());
-									Object obj = Classes.parseString(field.getType(), val);
+									Object obj = val == null ? globalConfig.get(field.getName(), field.getType())
+											: Classes.parseString(field.getType(), val);
+									if (obj == null)
+										return;
 									field.set(pipe, obj);
 								} catch (IllegalArgumentException | IllegalAccessException e) {
 									throw new RuntimeException(e);

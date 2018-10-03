@@ -6,10 +6,12 @@ import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
-public class Blueprint {
+public class Blueprint<T extends GlobalConfig> {
+	private T global;
 
 	private ArrayList<Node> pipeline = new ArrayList<>();
 
@@ -21,16 +23,19 @@ public class Blueprint {
 		this.pipeline = pipeline;
 	}
 
-	public static Blueprint load(File f) throws JsonProcessingException, IOException {
-		return makeReader().readValue(f);
+	public static <T extends GlobalConfig> Blueprint<T> load(File f,Class<T> config) throws JsonProcessingException, IOException {
+		return makeReader(config).readValue(f);
 	}
 
-	public static Blueprint load(String s) throws JsonProcessingException, IOException {
-		return makeReader().readValue(s);
+	public static <T extends GlobalConfig> Blueprint<T> load(String s,Class<T> config) throws JsonProcessingException, IOException {
+		
+		return makeReader(config).readValue(s);
 	}
 
-	private static ObjectReader makeReader() {
-		return new ObjectMapper().reader(Blueprint.class);
+	private static <T extends GlobalConfig> ObjectReader makeReader(Class<T> config) {
+		ObjectMapper mapper = new ObjectMapper();
+		JavaType type = mapper.getTypeFactory().constructParametricType(Blueprint.class, config);
+		return mapper.reader(type);
 	}
 
 	@Override
@@ -43,6 +48,14 @@ public class Blueprint {
 			e.printStackTrace();
 			return super.toString();
 		}
+	}
+
+	public T getGlobal() {
+		return global;
+	}
+
+	public void setGlobal(T global) {
+		this.global = global;
 	}
 
 }
