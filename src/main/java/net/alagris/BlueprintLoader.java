@@ -32,13 +32,13 @@ public class BlueprintLoader {
 		return make(blueprint.getPipeline(), workType, blueprint.getGlobal());
 	}
 
-	private <T, C extends GlobalConfig> Group<T> make(ArrayList<Node> pipeline, Class<T> workType, C globalConfig) {
+	private <T, C extends GlobalConfig> Group<T> make(ArrayList<Node> pipeline, final Class<T> workType, final C globalConfig) {
 
 		ArrayList<Pipework<T>> gr = ArrayLists.convert(new Converter<Node, Pipework<T>>() {
 
 			@Override
 			public Pipework<T> convert(Node f) {
-				Map<String, String> cnfg = Collections.unmodifiableMap(f.getConfig());
+				final Map<String, String> cnfg = Collections.unmodifiableMap(f.getConfig());
 				HashMap<String, Group<T>> alts = HashMaps.convert(new Converter<ArrayList<Node>, Group<T>>() {
 					@Override
 					public Group<T> convert(ArrayList<Node> f) {
@@ -47,7 +47,7 @@ public class BlueprintLoader {
 				}, f.getAlternatives());
 				Map<String, Group<T>> unmodAlts = Collections.unmodifiableMap(alts);
 				String className = modulesPackage + "." + f.getName();
-				Pipe<T> pipe;
+				final Pipe<T> pipe;
 				try {
 					@SuppressWarnings("unchecked")
 					Class<Pipe<T>> pipeClass = (Class<Pipe<T>>) Class.forName(className);
