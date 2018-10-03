@@ -1,6 +1,7 @@
 package net.alagris;
 
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -14,20 +15,24 @@ public class HashGlobalConfig implements GlobalConfig {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T get(String name, Class<T> type) {
-		return (T) Classes.parseString(type, opts.get(name));
+	public <T> T get(String name, Class<T> type) throws NoSuchElementException {
+		if (opts.containsKey(name)) {
+			return (T) Classes.parseObject(type, opts.get(name));
+		} else {
+			throw new NoSuchElementException("No config named: " + name);
+		}
 	}
 
 	@JsonAnyGetter
-	public HashMap<String, String> getOpts() {
+	public HashMap<String, Object> getOpts() {
 		return opts;
 	}
 
 	@JsonAnySetter
-	public void setOpts(String k, String v) {
+	public void setOpts(String k, Object v) {
 		this.opts.put(k, v);
 	}
 
-	private HashMap<String, String> opts = new HashMap<>();
+	private HashMap<String, Object> opts = new HashMap<>();
 
 }

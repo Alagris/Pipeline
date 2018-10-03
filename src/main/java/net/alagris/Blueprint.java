@@ -23,13 +23,18 @@ public class Blueprint<T extends GlobalConfig> {
 		this.pipeline = pipeline;
 	}
 
+	private static <T extends GlobalConfig> Blueprint<T> afterParsing(Blueprint<T> blueprint){
+		blueprint.getGlobal().onLoad();
+		return blueprint;
+	}
 	public static <T extends GlobalConfig> Blueprint<T> load(File f,Class<T> config) throws JsonProcessingException, IOException {
-		return makeReader(config).readValue(f);
+		 Blueprint<T> blueprint = makeReader(config).readValue(f);
+		 return afterParsing(blueprint);
 	}
 
 	public static <T extends GlobalConfig> Blueprint<T> load(String s,Class<T> config) throws JsonProcessingException, IOException {
-		
-		return makeReader(config).readValue(s);
+		Blueprint<T> blueprint = makeReader(config).readValue(s);
+		 return afterParsing(blueprint);
 	}
 
 	private static <T extends GlobalConfig> ObjectReader makeReader(Class<T> config) {

@@ -32,7 +32,8 @@ public class BlueprintLoader {
 		return make(blueprint.getPipeline(), workType, blueprint.getGlobal());
 	}
 
-	private <T, C extends GlobalConfig> Group<T> make(ArrayList<Node> pipeline, final Class<T> workType, final C globalConfig) {
+	private <T, C extends GlobalConfig> Group<T> make(ArrayList<Node> pipeline, final Class<T> workType,
+			final C globalConfig) {
 
 		ArrayList<Pipework<T>> gr = ArrayLists.convert(new Converter<Node, Pipework<T>>() {
 
@@ -50,25 +51,37 @@ public class BlueprintLoader {
 				final Pipe<T> pipe;
 				try {
 					@SuppressWarnings("unchecked")
-					Class<Pipe<T>> pipeClass = (Class<Pipe<T>>) Class.forName(className);
+					final Class<Pipe<T>> pipeClass = (Class<Pipe<T>>) Class.forName(className);
 					pipe = pipeClass.newInstance();
 					ReflectionUtils.doWithFields(pipeClass, new FieldCallback() {
+						@SuppressWarnings("unchecked")
+						<T2> void setField(Class<T2> c, Object value, Field field)
+								throws IllegalArgumentException, IllegalAccessException {
+							field.set(pipe, (T2) value);
+						}
+
 						@Override
 						public void doFor(Field field) {
 							if (field.isAnnotationPresent(Config.class)) {
 								try {
-									String val = cnfg.get(field.getName());
-									Object obj = val == null ? globalConfig.get(field.getName(), field.getType())
-											: Classes.parseString(field.getType(), val);
-									if (obj == null)
-										return;
-									field.set(pipe, obj);
-								} catch (IllegalArgumentException | IllegalAccessException e) {
-									throw new RuntimeException(e);
+									final String name = field.getName();
+									final String val = cnfg.get(name);
+									final Object obj;
+									if (val == null) {
+										obj = globalConfig.get(name, field.getType());
+									} else {
+										obj = Classes.parseObject(field.getType(), val);
+									}
+									setField(field.getType(), obj, field);
+
+								} catch (Exception e) {
+									throw new RuntimeException(
+											"Failed injecting " + pipeClass.getName() + "." + field.getName(), e);
 								}
 							}
 						}
 					});
+					pipe.onLoad();
 				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
 					throw new RuntimeException(e);
 				}

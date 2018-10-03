@@ -36,4 +36,8 @@ public class Group<T> implements Pipe<T> {
 		}
 		return null;
 	}
+
+	@Override
+	public void onLoad() {
+	}
 }
