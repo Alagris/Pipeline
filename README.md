@@ -1,3 +1,5 @@
+# Example
+
 ``Pipeline`` is a a tiny library that allows for sequential data processing. Below you can find a usage example. First of all you need to create JSON file like this:
 
     {
@@ -177,3 +179,33 @@ Once you have everything ready you can finally run the pipeline with this piece 
 Notice that your pipeline might operate on anything. It doesn't have to be ``String``. Just change generic parameters into some other class.
 
 By default pipeline prints intermediate outputs. You can change level of verbosity by modyfing parameters in class ``Logger``.
+
+# Download
+
+## Maven
+
+    <repositories>
+    	<repository>
+    		<id>pipeline</id>
+    		<url>https://raw.github.com/Alagris/Pipeline/repository/</url>
+    	</repository>
+    </repositories>
+    
+    <dependencies>
+    	<dependency>
+    		<groupId>pipeline</groupId>
+    		<artifactId>pipeline</artifactId>
+    		<version>1.0</version>
+    	</dependency>
+    </dependencies>	
+    
+## Gradle
+
+
+    repositories {
+        maven { url "https://raw.github.com/Alagris/Pipeline/repository/" }
+    }
+    
+    dependencies {
+    	compile group: 'pipeline', name: 'pipeline', version:'1.0'
+    }
