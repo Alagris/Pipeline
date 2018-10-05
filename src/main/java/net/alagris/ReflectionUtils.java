@@ -2,7 +2,9 @@ package net.alagris;
 
 import java.lang.reflect.Field;
 
-public final class ReflectionUtils {
+
+//Not part of public interface
+final class ReflectionUtils {
 	private ReflectionUtils() {
 	}
 

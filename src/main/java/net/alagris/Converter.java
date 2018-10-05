@@ -1,5 +1,6 @@
 package net.alagris;
 
-public interface Converter<From, To> {
+//Not part of public interface
+interface Converter<From, To> {
 	To convert(From f);
 }

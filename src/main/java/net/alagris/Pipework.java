@@ -2,7 +2,11 @@ package net.alagris;
 
 import java.util.Map;
 
-public class Pipework<T> {
+/**
+ * Pipework is a mature version of Node. Each Pipework contains and supervises
+ * one {@link Pipe}. It is not mutable. Multiple Pipeworks make up a {@link Group}.
+ */
+public class Pipework<T> implements AutoCloseable {
 
 	private final Map<String, String> config;
 	private final Map<String, Group<T>> alternatives;
@@ -28,6 +32,7 @@ public class Pipework<T> {
 		return pipe;
 	}
 
+	// Not part of public interface
 	T process(T input) {
 		Output<T> out = pipe.process(input);
 		if (Logger.verbose) {
@@ -42,6 +47,11 @@ public class Pipework<T> {
 
 	public String getId() {
 		return id;
+	}
+
+	@Override
+	public void close() throws Exception {
+		pipe.close();
 	}
 
 }

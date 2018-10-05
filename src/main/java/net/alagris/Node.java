@@ -3,7 +3,12 @@ package net.alagris;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Node {
+/**
+ * Contains configurations loaded from JSON. Every Node is mutable but can later
+ * on be converted into {@link Pipework} which is no longer mutable. Nodes make
+ * up {@link Blueprint}.
+ */
+public class Node implements Identifiable {
 	private String name;
 	private String id;
 	private HashMap<String, String> config = new HashMap<>();
@@ -17,11 +22,17 @@ public class Node {
 		this.name = name;
 	}
 
+	@Override
 	public String getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	/**
+	 * This method is here only for Jenkins. Normally ID would be final. Don't use
+	 * this setter!
+	 */
+	@Deprecated
+	void setId(String id) {
 		this.id = id;
 	}
 
@@ -41,4 +52,8 @@ public class Node {
 		this.alternatives = alternatives;
 	}
 	
+	void applyCover(NodeCover cover) {
+		config.putAll(cover.getConfig());
+	}
+
 }

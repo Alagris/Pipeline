@@ -4,7 +4,8 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Classes {
+//Not part of public interface
+final class Classes {
 	private Classes() {
 	}
 

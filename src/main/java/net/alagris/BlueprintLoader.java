@@ -10,6 +10,10 @@ import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+/**
+ * BlueprintLoader can turn your {@link Blueprint } to {@link Group} . You
+ * cannot modify configurations of {@link Group} but you can execute it.
+ */
 public class BlueprintLoader {
 
 	private final String modulesPackage;
@@ -18,13 +22,21 @@ public class BlueprintLoader {
 		this.modulesPackage = modulesPackage;
 	}
 
+	public BlueprintLoader(Package modulesPackage) {
+		this(modulesPackage.getName());
+	}
+
+	public BlueprintLoader(Class<?> modulesPackageForClass) {
+		this(modulesPackageForClass.getPackage());
+	}
+
 	public <T, C extends GlobalConfig> Group<T> make(String json, Class<T> workType, Class<C> config)
-			throws JsonProcessingException, IOException {
+			throws JsonProcessingException, IOException, DuplicateIdException {
 		return make(Blueprint.load(json, config), workType);
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(File f, Class<T> workType, Class<C> config)
-			throws JsonProcessingException, IOException {
+			throws JsonProcessingException, IOException, DuplicateIdException {
 		return make(Blueprint.load(f, config), workType);
 	}
 
@@ -35,58 +47,84 @@ public class BlueprintLoader {
 	private <T, C extends GlobalConfig> Group<T> make(ArrayList<Node> pipeline, final Class<T> workType,
 			final C globalConfig) {
 
-		ArrayList<Pipework<T>> gr = ArrayLists.convert(new Converter<Node, Pipework<T>>() {
+		final ArrayList<Pipework<T>> gr = ArrayLists.convert(new Converter<Node, Pipework<T>>() {
 
 			@Override
 			public Pipework<T> convert(Node f) {
 				final Map<String, String> cnfg = Collections.unmodifiableMap(f.getConfig());
-				HashMap<String, Group<T>> alts = HashMaps.convert(new Converter<ArrayList<Node>, Group<T>>() {
+				final HashMap<String, Group<T>> alts = makeAlternatives(workType, globalConfig, f);
+				final Map<String, Group<T>> unmodAlts = Collections.unmodifiableMap(alts);
+				final String className = modulesPackage + "." + f.getName();
+				final Pipe<T> pipe = buildPipe(globalConfig, cnfg, className);
+				return new Pipework<T>(cnfg, unmodAlts, pipe, f.getId());
+			}
+
+			private Pipe<T> buildPipe(final C globalConfig, final Map<String, String> cnfg, final String className) {
+				try {
+					@SuppressWarnings("unchecked")
+					final Class<Pipe<T>> pipeClass = (Class<Pipe<T>>) Class.forName(className);
+					final Pipe<T> pipe = pipeClass.newInstance();
+					injectFields(globalConfig, cnfg, pipe, pipeClass);
+					pipe.onLoad();
+					return pipe;
+				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+					throw new RuntimeException(e);
+				}
+
+			}
+
+			private HashMap<String, Group<T>> makeAlternatives(final Class<T> workType, final C globalConfig, Node f) {
+				return HashMaps.convert(new Converter<ArrayList<Node>, Group<T>>() {
 					@Override
 					public Group<T> convert(ArrayList<Node> f) {
 						return make(f, workType, globalConfig);
 					}
 				}, f.getAlternatives());
-				Map<String, Group<T>> unmodAlts = Collections.unmodifiableMap(alts);
-				String className = modulesPackage + "." + f.getName();
-				final Pipe<T> pipe;
-				try {
+			}
+
+			private void injectFields(final C globalConfig, final Map<String, String> cnfg, final Pipe<T> pipe,
+					final Class<Pipe<T>> pipeClass) {
+				ReflectionUtils.doWithFields(pipeClass, new FieldCallback() {
+
 					@SuppressWarnings("unchecked")
-					final Class<Pipe<T>> pipeClass = (Class<Pipe<T>>) Class.forName(className);
-					pipe = pipeClass.newInstance();
-					ReflectionUtils.doWithFields(pipeClass, new FieldCallback() {
-						@SuppressWarnings("unchecked")
-						<T2> void setField(Class<T2> c, Object value, Field field)
-								throws IllegalArgumentException, IllegalAccessException {
-							field.set(pipe, (T2) value);
-						}
+					<T2> void setField(Class<T2> c, Object value, Field field)
+							throws IllegalArgumentException, IllegalAccessException {
+						field.set(pipe, (T2) value);
+					}
 
-						@Override
-						public void doFor(Field field) {
-							if (field.isAnnotationPresent(Config.class)) {
-								try {
-									final String name = field.getName();
-									final String val = cnfg.get(name);
-									final Object obj;
-									if (val == null) {
-										obj = globalConfig.get(name, field.getType());
-									} else {
-										obj = Classes.parseObject(field.getType(), val);
-									}
-									setField(field.getType(), obj, field);
+					<T2> void setField(Class<T2> c, Field field)
+							throws IllegalArgumentException, IllegalAccessException {
+						setField(c, makeObject(globalConfig, field), field);
+					}
 
-								} catch (Exception e) {
-									throw new RuntimeException(
-											"Failed injecting " + pipeClass.getName() + "." + field.getName(), e);
-								}
+					@Override
+					public void doFor(Field field) {
+						if (field.isAnnotationPresent(Config.class)) {
+							try {
+								setField(field.getType(), field);
+							} catch (Exception e) {
+								throw new RuntimeException(
+										"Failed injecting " + pipeClass.getName() + "." + field.getName(), e);
 							}
 						}
-					});
-					pipe.onLoad();
-				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-					throw new RuntimeException(e);
-				}
-				Pipework<T> pipework = new Pipework<T>(cnfg, unmodAlts, pipe, f.getId());
-				return pipework;
+					}
+
+					private Object makeObject(final C globalConfig, Field field) {
+						return makeObject(globalConfig, field, field.getName());
+					}
+
+					private Object makeObject(final C globalConfig, Field field, final String name) {
+						return makeObject(globalConfig, field, name, cnfg.get(name));
+					}
+
+					private Object makeObject(final C globalConfig, Field field, final String name, final String val) {
+						if (val == null) {
+							return globalConfig.get(name, field.getType());
+						} else {
+							return Classes.parseObject(field.getType(), val);
+						}
+					}
+				});
 			}
 		}, pipeline);
 

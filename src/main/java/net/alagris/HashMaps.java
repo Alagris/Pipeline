@@ -3,7 +3,9 @@ package net.alagris;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-public class HashMaps {
+
+//Not part of public interface
+class HashMaps {
 
 	public static <From, To, Key> HashMap<Key, To> convert(Converter<From, To> c, HashMap<Key, From> a) {
 		HashMap<Key, To> out = new HashMap<>(a.size());

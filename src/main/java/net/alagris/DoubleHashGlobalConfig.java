@@ -5,8 +5,20 @@ import java.util.NoSuchElementException;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+/**
+ * {@link DoubleHashGlobalConfig} extends {@link HashGlobalConfig} with
+ * additional {@link HashMap} dedicated to programmatically generated
+ * configurations. Use <br>
+ * <code> void onLoad(){<br>
+ * 	setProgrammaticOpt("key", value);<br>
+ * } </code><br>
+ * to add your own values. <br>
+ * <b>Important note!</b><br>
+ * Programmatic options are not influenced by {@link BlueprintCover}. If you
+ * wish to update them accordingly, then you should override
+ * <code>void applyCover(GlobalConfig other)</code>
+ */
 public class DoubleHashGlobalConfig extends HashGlobalConfig {
-
 	@JsonIgnore
 	private final HashMap<String, Object> programmaticOpts = new HashMap<>();
 

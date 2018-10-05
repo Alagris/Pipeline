@@ -3,7 +3,8 @@ package net.alagris;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ArrayLists {
+//Not part of public interface
+final class ArrayLists {
 
 	private ArrayLists() {
 	}

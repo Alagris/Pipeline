@@ -2,6 +2,6 @@ package net.alagris;
 
 import java.lang.reflect.Field;
 
-public interface FieldCallback {
-	void doFor(Field field);
+//Not part of public interface
+interface FieldCallback extends Callback<Field>{
 }

@@ -1,16 +1,31 @@
 package net.alagris;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 
+/**
+ * HashGlobalConfig provides the most basic and generic implementation of
+ * {@link GlobalConfig}. It only caches key-value pairs in a {@link HashMap}.
+ */
 public class HashGlobalConfig implements GlobalConfig {
 
 	@Override
 	public void onLoad() {
 
+	}
+
+	@Override
+	public void applyCover(GlobalConfig other) {
+		for (Entry<String, Object> entry : opts.entrySet()) {
+			try {
+				entry.setValue(other.get(entry.getKey(), Object.class));
+			} catch (NoSuchElementException e) {
+			}
+		}
 	}
 
 	@SuppressWarnings("unchecked")
