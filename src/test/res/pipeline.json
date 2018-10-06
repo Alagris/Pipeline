@@ -1,0 +1,52 @@
+{
+	"global": {
+		"lang": "es-ES",
+		"suffix": "-g",
+		"paths": [
+			"tre",
+			"tre4"
+		],
+		"ints": [
+			"0",
+			"14"
+		]
+	},
+	"pipeline": [
+		{
+			"name": "Preprocessor",
+			"id": "Preprocessor-id",
+			"config": {
+				"suffix": "-t",
+				"enabled": "true"
+			}
+		},
+		{
+			"name": "Branching",
+			"id": "Branching-id",
+			"config": {
+				"left": "1",
+				"right": "2"
+			},
+			"alternatives": {
+				"left": [
+					{
+						"name": "Lowercase",
+						"id": "Lowercase-id"
+					},
+					{
+						"name": "UppercaseFirst",
+						"id": "Truecaser-id"
+					}
+				],
+				"right": [
+					{
+						"name": "Uppercase"
+					}
+				]
+			}
+		},
+		{
+			"name": "Trim"
+		}
+	]
+}

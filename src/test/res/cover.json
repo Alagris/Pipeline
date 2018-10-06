@@ -1,0 +1,38 @@
+{
+	"global": {
+		"lang": "pl-PL",
+		"suffix": "-g",
+		"paths": [
+			"tap1",
+			"tap2"
+		],
+		"ints": [
+			"099",
+			"1499",
+			"43"
+		]
+	},
+	"cover": {
+		"Preprocessor-id": {
+			"config": {
+				"suffix": "-new"
+			}
+		},
+		"Branching-id": {
+			"config": {
+				"left": "10",
+				"right": "20"
+			}
+		},
+		"Truecaser-id": {
+			"config": {
+				"enabled": "false"
+			}
+		},
+		"Lowercase-id": {
+			"config": {
+				"enabled": "false"
+			}
+		}
+	}
+}

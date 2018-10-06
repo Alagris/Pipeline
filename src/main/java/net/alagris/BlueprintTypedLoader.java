@@ -5,6 +5,10 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+/**
+ * Provides BlueprintLoader with automatically filled type parameters. Just a
+ * convenience class.
+ */
 public class BlueprintTypedLoader<T, C extends GlobalConfig> extends BlueprintLoader {
 
 	private final Class<T> workType;
@@ -51,7 +55,7 @@ public class BlueprintTypedLoader<T, C extends GlobalConfig> extends BlueprintLo
 	public void applyCover(Blueprint<C> blueprint, File cover) throws IOException {
 		blueprint.applyCover(cover, config);
 	}
-	
+
 	public void applyCover(Blueprint<C> blueprint, String cover) throws IOException {
 		blueprint.applyCover(cover, config);
 	}

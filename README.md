@@ -1,5 +1,7 @@
 # Example
 
+### JSON
+
 ``Pipeline`` is a a tiny library that allows for sequential data processing. Below you can find a usage example. First of all you need to create JSON file like this:
 
     {
@@ -18,6 +20,7 @@
     	"pipeline": [
     		{
     			"name": "Preprocessor",
+    			"id": "Preprocessor-id",
     			"config": {
     				"suffix_": "-t",
     				"enabled": "true"
@@ -25,6 +28,7 @@
     		},
     		{
     			"name": "Branching",
+    			"id": "Branching-id",
     			"config": {
     				"num1": "1",
     				"num2": "2"
@@ -33,11 +37,13 @@
     				"left": [
     					{
     						"name": "Uppercase"
+    						"id": "Uppercase-id",
     					}
     				],
     				"right": [
     					{
     						"name": "Lowercase"
+    						"id": "Lowercase-id",
     					}
     				]
     			}
@@ -51,6 +57,8 @@
     	]
     }
     
+### Basics
+
 Then you need to create classes ``Preprocessor``, ``Branching``, ``Uppercase``, ``Lowercase``, ``Trim``, ``Fix``. All of them have to implement ``Pipe`` interface. 
 
     public class Autofixer implements Pipe<String>{
@@ -179,6 +187,70 @@ Once you have everything ready you can finally run the pipeline with this piece 
 Notice that your pipeline might operate on anything. It doesn't have to be ``String``. Just change generic parameters into some other class.
 
 By default pipeline prints intermediate outputs. You can change level of verbosity by modyfing parameters in class ``Logger``.
+
+### Covers
+
+Sometimes you might wish to reuse existing pipeline with some tiny configuration modifications. This is exactly what BlueprintCover is for. JSON example:
+
+    {
+    	"global": {
+    		"lang": "pl-PL",
+    		"suffix": "-g",
+    		"paths": [
+    			"tap1",
+    			"tap2"
+    		],
+    		"ints": [
+    			"099",
+    			"1499",
+    			"43"
+    		]
+    	},
+    	"cover": {
+    		"Preprocessor-id": {
+    			"config": {
+    				"suffix": "-new"
+    			}
+    		},
+    		"Branching-id": {
+    			"config": {
+    				"left": "10",
+    				"right": "20"
+    			}
+    		},
+    		"Uppercase-id": {
+    			"config": {
+    				"enabled": "false"
+    			}
+    		},
+    		"Lowercase-id": {
+    			"config": {
+    				"enabled": "false"
+    			}
+    		}
+    	}
+    }
+
+You can apply this cover with a method like this:
+
+    blueprint.applyCover(new File("path/to/cover.json"), GlobalCnfg.class);
+    
+### Convenience and extras
+
+If you plan on applying many covers and loading multiple pipelines but all with the same generic types you might choose to use ``BlueprintTypedLoader``. Example:
+
+    try {
+    	//you specify classes only once in the contructor
+    	BlueprintTypedLoader<String, GlobalCnfg> loader = new BlueprintTypedLoader<String, GlobalCnfg>(Main.class,
+    			String.class, GlobalCnfg.class);
+    	//and then those classes are filled in for you
+    	Blueprint<GlobalCnfg> blueprint = loader.load(new File("pipeline.json"));
+    	loader.applyCover(blueprint, new File("cover.json"));
+    	Group<String> gr = loader.make(blueprint);
+    	gr.close();
+    } catch (Exception e) {
+    	e.printStackTrace();
+    }
 
 # Download
 
