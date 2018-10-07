@@ -8,13 +8,13 @@ import java.util.HashMap;
  * up {@link Blueprint}.
  */
 public class NodeCover{
-	private HashMap<String, String> config = new HashMap<>();
+	private HashMap<String, Object> config = new HashMap<>();
 
-	public HashMap<String, String> getConfig() {
+	public HashMap<String, Object> getConfig() {
 		return config;
 	}
 
-	public void setConfig(HashMap<String, String> config) {
+	public void setConfig(HashMap<String, Object> config) {
 		this.config = config;
 	}
 

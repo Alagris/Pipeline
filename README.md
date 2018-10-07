@@ -106,6 +106,23 @@ Fields annotated with ``@Config`` will be injected with values specified in JSON
 1. first will be checked ``"config": {}`` field that belongs to given pipe. If no ``"ints": `` is found inside it, then
 2. ``"global": {}`` configuration will be searched
 
+You may also specify the filed name in annotation:
+
+    @Config("ints")
+    int[] anyNameYouLike;
+    
+Pipeline will automatically parse JSON into the following types:
+
+* int, byte, char, short ...
+* Integer, Byte, Character, Short ...
+* String
+* int[], byte[], char[], short[] ...
+* Integer[], Byte[], Character[], Short[] ...
+* String[]
+* ArrayList\<String>
+
+If you wish to use ``@Config`` for any other type you should parse it in your own ``GlobalConfig`` (read below).
+
 Pipelines can branch into subpipelines. This is what ``"alternatives":{}`` is for. Inside you put ``"BRANCH_NAME":[{},{},...]`` that specify possible subpipelines to follow. There are 2 standard branch names (they are a nice convention but you are not limited to them): "left" and "right". In order to branch to an alternative pipeline you need to use ``Output`` class.
 
     public class Branching implements Pipe<String> {
@@ -148,6 +165,11 @@ Here is an example of custom class that uses ``DoubleHashGlobalConfig``:
     		if (lang != null) {
     			locale = Locale.forLanguageTag(lang);
     			setProgrammaticOpt("locale", locale);
+    			 // You can then inject Locale 
+		    	// directly with @Config like this:
+		    	//
+		    	// @Config
+		    	// Locale locale;
     			setProgrammaticOpt("country", lang.substring(Math.max(0,lang.length()-2)));
     		}
     	}
@@ -234,6 +256,21 @@ Sometimes you might wish to reuse existing pipeline with some tiny configuration
 You can apply this cover with a method like this:
 
     blueprint.applyCover(new File("path/to/cover.json"), GlobalCnfg.class);
+    
+#### Cover from command line parameters
+
+There a nice and simple utility called ``CommandLineToCover``. It allows you to parse incoming command line parameters and turn them into ``BlueprintCover``. 
+
+    public static void main(String[] args) {
+    	CommandLineToCover cmdCover = new CommandLineToCover(args);
+    	try {
+    		BlueprintCover<GlobalCnfg> cover = cmdCover.make(GlobalCnfg.class);
+    		Blueprint<GlobalCnfg> blueprint = ...;
+    		blueprint.applyCover(cover);
+    	} catch (InstantiationException | IllegalAccessException | ParseException | DuplicateIdException e) {
+    		e.printStackTrace();
+    	}
+    }
     
 ### Convenience and extras
 

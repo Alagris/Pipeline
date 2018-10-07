@@ -38,6 +38,11 @@ public class HashGlobalConfig implements GlobalConfig {
 		}
 	}
 
+	@Override
+	public void put(String variable, Object value) {
+		setOpts(variable, value);
+	}
+
 	@JsonAnyGetter
 	public HashMap<String, Object> getOpts() {
 		return opts;

@@ -51,7 +51,7 @@ public class BlueprintLoader {
 
 			@Override
 			public Pipework<T> convert(Node f) {
-				final Map<String, String> cnfg = Collections.unmodifiableMap(f.getConfig());
+				final Map<String, Object> cnfg = Collections.unmodifiableMap(f.getConfig());
 				final HashMap<String, Group<T>> alts = makeAlternatives(workType, globalConfig, f);
 				final Map<String, Group<T>> unmodAlts = Collections.unmodifiableMap(alts);
 				final String className = modulesPackage + "." + f.getName();
@@ -59,7 +59,7 @@ public class BlueprintLoader {
 				return new Pipework<T>(cnfg, unmodAlts, pipe, f.getId());
 			}
 
-			private Pipe<T> buildPipe(final C globalConfig, final Map<String, String> cnfg, final String className) {
+			private Pipe<T> buildPipe(final C globalConfig, final Map<String, Object> cnfg, final String className) {
 				try {
 					@SuppressWarnings("unchecked")
 					final Class<Pipe<T>> pipeClass = (Class<Pipe<T>>) Class.forName(className);
@@ -82,7 +82,7 @@ public class BlueprintLoader {
 				}, f.getAlternatives());
 			}
 
-			private void injectFields(final C globalConfig, final Map<String, String> cnfg, final Pipe<T> pipe,
+			private void injectFields(final C globalConfig, final Map<String, Object> cnfg, final Pipe<T> pipe,
 					final Class<Pipe<T>> pipeClass) {
 				ReflectionUtils.doWithFields(pipeClass, new FieldCallback() {
 
@@ -92,16 +92,17 @@ public class BlueprintLoader {
 						field.set(pipe, (T2) value);
 					}
 
-					<T2> void setField(Class<T2> c, Field field)
+					<T2> void setField(Class<T2> c, Field field, Config annotation)
 							throws IllegalArgumentException, IllegalAccessException {
-						setField(c, makeObject(globalConfig, field), field);
+						setField(c, makeObject(globalConfig, field, annotation), field);
 					}
 
 					@Override
 					public void doFor(Field field) {
-						if (field.isAnnotationPresent(Config.class)) {
+						Config annotation = field.getAnnotation(Config.class);
+						if (annotation != null) {
 							try {
-								setField(field.getType(), field);
+								setField(field.getType(), field, annotation);
 							} catch (Exception e) {
 								throw new RuntimeException(
 										"Failed injecting " + pipeClass.getName() + "." + field.getName(), e);
@@ -109,15 +110,19 @@ public class BlueprintLoader {
 						}
 					}
 
-					private Object makeObject(final C globalConfig, Field field) {
-						return makeObject(globalConfig, field, field.getName());
+					private Object makeObject(final C globalConfig, Field field, Config annotation) {
+						String name = annotation.value();
+						if (name == null || name.equals("")) {
+							name = field.getName();
+						}
+						return makeObject(globalConfig, field, name);
 					}
 
 					private Object makeObject(final C globalConfig, Field field, final String name) {
 						return makeObject(globalConfig, field, name, cnfg.get(name));
 					}
 
-					private Object makeObject(final C globalConfig, Field field, final String name, final String val) {
+					private Object makeObject(final C globalConfig, Field field, final String name, final Object val) {
 						if (val == null) {
 							return globalConfig.get(name, field.getType());
 						} else {

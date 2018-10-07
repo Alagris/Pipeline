@@ -2,6 +2,7 @@ package net.alagris;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -51,6 +52,14 @@ public class BlueprintTypedLoader<T, C extends GlobalConfig> extends BlueprintLo
 	public Group<T> make(Blueprint<C> blueprint) throws JsonProcessingException, IOException, DuplicateIdException {
 		return make(blueprint, workType);
 	}
+	
+	public BlueprintCover<C> makeCover(String... args) throws ParseException, DuplicateIdException, InstantiationException, IllegalAccessException {
+		return makeCover(new CommandLineToCover(args));
+	}
+
+	public BlueprintCover<C> makeCover(CommandLineToCover cmd) throws ParseException, DuplicateIdException, InstantiationException, IllegalAccessException {
+		return cmd.make(config);
+	}
 
 	public void applyCover(Blueprint<C> blueprint, File cover) throws IOException {
 		blueprint.applyCover(cover, config);
@@ -63,4 +72,12 @@ public class BlueprintTypedLoader<T, C extends GlobalConfig> extends BlueprintLo
 	public void applyCover(Blueprint<C> blueprint, BlueprintCover<C> cover) throws IOException {
 		blueprint.applyCover(cover);
 	}
+
+	public BlueprintCover<C> applyCover(Blueprint<C> blueprint, CommandLineToCover cmd)
+			throws ParseException, DuplicateIdException, IOException, InstantiationException, IllegalAccessException {
+		BlueprintCover<C> cover = makeCover(cmd);
+		applyCover(blueprint, cover);
+		return cover;
+	}
+	
 }

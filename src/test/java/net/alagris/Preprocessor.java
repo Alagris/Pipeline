@@ -1,5 +1,7 @@
 package net.alagris;
 
+import java.util.ArrayList;
+
 public class Preprocessor extends OptionalPipe<String> {
 
 	@Config
@@ -10,9 +12,12 @@ public class Preprocessor extends OptionalPipe<String> {
 
 	@Config
 	int[] ints;
-	
+
 	@Config
 	String country;
+
+	@Config("strings")
+	ArrayList<String> dynPaths;
 
 	@Override
 	public Output<String> proc(String input) {
@@ -26,7 +31,7 @@ public class Preprocessor extends OptionalPipe<String> {
 
 	@Override
 	public void close() throws Exception {
-		
+
 	}
 
 }

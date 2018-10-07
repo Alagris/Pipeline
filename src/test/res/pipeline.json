@@ -17,7 +17,12 @@
 			"id": "Preprocessor-id",
 			"config": {
 				"suffix": "-t",
-				"enabled": "true"
+				"enabled": "true",
+				"strings": [
+					"re",
+					"move",
+					"bugs"
+				]
 			}
 		},
 		{

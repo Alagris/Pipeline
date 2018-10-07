@@ -11,7 +11,7 @@ import java.util.HashMap;
 public class Node implements Identifiable {
 	private String name;
 	private String id;
-	private HashMap<String, String> config = new HashMap<>();
+	private HashMap<String, Object> config = new HashMap<>();
 	private HashMap<String, ArrayList<Node>> alternatives = new HashMap<>();
 
 	public String getName() {
@@ -36,11 +36,11 @@ public class Node implements Identifiable {
 		this.id = id;
 	}
 
-	public HashMap<String, String> getConfig() {
+	public HashMap<String, Object> getConfig() {
 		return config;
 	}
 
-	public void setConfig(HashMap<String, String> config) {
+	public void setConfig(HashMap<String, Object> config) {
 		this.config = config;
 	}
 

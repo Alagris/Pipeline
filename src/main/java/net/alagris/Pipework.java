@@ -8,19 +8,19 @@ import java.util.Map;
  */
 public class Pipework<T> implements AutoCloseable {
 
-	private final Map<String, String> config;
+	private final Map<String, Object> config;
 	private final Map<String, Group<T>> alternatives;
 	private final Pipe<T> pipe;
 	private final String id;
 
-	public Pipework(Map<String, String> config, Map<String, Group<T>> alternatives, Pipe<T> pipe, String id) {
+	public Pipework(Map<String, Object> config, Map<String, Group<T>> alternatives, Pipe<T> pipe, String id) {
 		this.config = config;
 		this.alternatives = alternatives;
 		this.pipe = pipe;
 		this.id = id;
 	}
 
-	public Map<String, String> getConfig() {
+	public Map<String, Object> getConfig() {
 		return config;
 	}
 
