@@ -259,7 +259,7 @@ You can apply this cover with a method like this:
     
 #### Cover from command line parameters
 
-There a nice and simple utility called ``CommandLineToCover``. It allows you to parse incoming command line parameters and turn them into ``BlueprintCover``. 
+There is a nice and simple utility called ``CommandLineToCover``. It allows you to parse incoming command line parameters and turn them into ``BlueprintCover``. 
 
     public static void main(String[] args) {
     	CommandLineToCover cmdCover = new CommandLineToCover(args);
@@ -271,6 +271,14 @@ There a nice and simple utility called ``CommandLineToCover``. It allows you to 
     		e.printStackTrace();
     	}
     }
+    
+The format for such parameters is:
+
+    $java -jar myApp.jar globalCnfg1=foo globalCnfg2=bar ... --pipeID1 pipe1Param1="[a, b, c]" pipe1Param2="[4, 5, 6]" ... --pipeID2 pipe2Param1=baz pipe2Param2="foo bar" ...
+    
+Example:
+
+    $java -jar myApp.jar paths="[my/path, /etc]" lang=en-GB --Preprocessor-id suffix="su fix" paths="[/try/hard]" --Branching-id left=X right=Y
     
 ### Convenience and extras
 
