@@ -25,7 +25,7 @@ public class BlueprintTypedLoaderTest {
 	}
 
 	@Test
-	public void parsing() throws Exception {
+	public void parsing() {
 		assertEquals("Lang code wrong!", "es-ES", blueprint.getGlobal().get("lang", String.class));
 		assertEquals("Country code wrong!", "ES", blueprint.getGlobal().get("country", String.class));
 		assertArrayEquals("Ints wrong!", new int[] { 0, 14 }, blueprint.getGlobal().get("ints", int[].class));
@@ -40,7 +40,7 @@ public class BlueprintTypedLoaderTest {
 	}
 
 	@Test
-	public void injection() throws Exception {
+	public void injection() {
 		Preprocessor preprocessor = (Preprocessor) gr.findPipeworkById("Preprocessor-id").getPipe();
 		assertEquals("Country code wrong!", "ES", preprocessor.country);
 		assertEquals("Not enabled!", true, preprocessor.enabled);
@@ -54,8 +54,9 @@ public class BlueprintTypedLoaderTest {
 
 	@Test
 	public void process() {
-		Pair[] testSet = new Pair[] { new Pair("", "-T"), new Pair("a", "A-T"), new Pair("hello world", "HELLO WORLD-T"),
-				new Pair("6237584", "6237584-T"), new Pair("_^$@(%#", "_^$@(%#-T"), };
+		Pair[] testSet = new Pair[] { new Pair("", "-T"), new Pair("a", "A-T"),
+				new Pair("hello world", "HELLO WORLD-T"), new Pair("6237584", "6237584-T"),
+				new Pair("_^$@(%#", "_^$@(%#-T"), };
 		for (Pair p : testSet) {
 			assertEquals(p.output, gr.process(p.intput).getValue());
 		}

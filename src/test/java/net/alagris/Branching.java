@@ -4,10 +4,10 @@ public class Branching implements Pipe<String> {
 
 	@Config
 	String left;
-	
+
 	@Config
 	String right;
-	
+
 	@Override
 	public Output<String> process(String input) {
 		return Output.right(input);
@@ -20,7 +20,7 @@ public class Branching implements Pipe<String> {
 
 	@Override
 	public void close() throws Exception {
-		
+
 	}
 
 }

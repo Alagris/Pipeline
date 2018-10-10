@@ -9,8 +9,18 @@ import java.util.List;
  * each {@link Pipe} to process given input one by one. You cannot modify, add
  * or remove Group members.
  **/
-public class Group<T> implements Pipe<T> {
-	private final ArrayList<Pipework<T>> group;
+public class Group<Cargo> implements Pipe<Cargo> {
+	private final ArrayList<Pipework<Cargo>> group;
+	private final ProcessingCallback<Cargo> callback;
+
+	private static class DefaultProcessing<Cargo> implements ProcessingCallback<Cargo> {
+
+		@Override
+		public Cargo process(Pipework<Cargo> pipework, Cargo input) {
+			return pipework.process(input);
+		}
+
+	}
 
 	public int size() {
 		return group.size();
@@ -20,33 +30,38 @@ public class Group<T> implements Pipe<T> {
 		return group.isEmpty();
 	}
 
-	public Pipework<T> get(int index) {
+	public Pipework<Cargo> get(int index) {
 		return group.get(index);
 	}
 
-	public Group(ArrayList<Pipework<T>> group) {
+	public Group(ArrayList<Pipework<Cargo>> group) {
+		this(group, null);
+	}
+
+	public Group(ArrayList<Pipework<Cargo>> group, ProcessingCallback<Cargo> callback) {
 		this.group = group;
+		this.callback = callback == null ? new DefaultProcessing<Cargo>() : callback;
 	}
 
 	@Override
-	public Output<T> process(T input) {
-		for (Pipework<T> pipe : group) {
-			input = pipe.process(input);
+	public Output<Cargo> process(Cargo input) {
+		for (Pipework<Cargo> pipework : group) {
+			input = callback.process(pipework, input);
 		}
-		return new Output<T>(input);
+		return new Output<Cargo>(input);
 	}
 
-	public List<Pipework<T>> getGroup() {
+	public List<Pipework<Cargo>> getGroup() {
 		return Collections.unmodifiableList(group);
 	}
 
-	public Pipework<T> findPipeworkById(String id) {
-		for (Pipework<T> pipe : group) {
+	public Pipework<Cargo> findPipeworkById(String id) {
+		for (Pipework<Cargo> pipe : group) {
 			if (pipe.getId().equals(id)) {
 				return pipe;
 			} else {
-				for (Group<T> gr : pipe.getAlternatives().values()) {
-					Pipework<T> p = gr.findPipeworkById(id);
+				for (Group<Cargo> gr : pipe.getAlternatives().values()) {
+					Pipework<Cargo> p = gr.findPipeworkById(id);
 					if (p != null) {
 						return p;
 					}
@@ -57,13 +72,13 @@ public class Group<T> implements Pipe<T> {
 	}
 
 	/** Recursively searches for pipe with given ID */
-	public Pipework<T> getById(String id) {
-		for (Pipework<T> pipe : group) {
+	public Pipework<Cargo> getById(String id) {
+		for (Pipework<Cargo> pipe : group) {
 			if (id.equals(pipe.getId())) {
 				return pipe;
 			}
-			for (Group<T> alt : pipe.getAlternatives().values()) {
-				Pipework<T> deeper = alt.getById(id);
+			for (Group<Cargo> alt : pipe.getAlternatives().values()) {
+				Pipework<Cargo> deeper = alt.getById(id);
 				if (deeper != null)
 					return deeper;
 			}
@@ -81,7 +96,7 @@ public class Group<T> implements Pipe<T> {
 
 	@Override
 	public void close() throws Exception {
-		for (Pipework<T> pipe : group) {
+		for (Pipework<Cargo> pipe : group) {
 			pipe.close();
 		}
 	}

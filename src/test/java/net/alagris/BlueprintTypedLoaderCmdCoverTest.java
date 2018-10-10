@@ -18,8 +18,8 @@ public class BlueprintTypedLoaderCmdCoverTest {
 	Group<String> gr;
 	Blueprint<GlobalCnfg> blueprint;
 
-	public BlueprintTypedLoaderCmdCoverTest()
-			throws JsonProcessingException, IOException, DuplicateIdException, ParseException, InstantiationException, IllegalAccessException {
+	public BlueprintTypedLoaderCmdCoverTest() throws JsonProcessingException, IOException, DuplicateIdException,
+			ParseException, InstantiationException, IllegalAccessException {
 		BlueprintTypedLoader<String, GlobalCnfg> loader = new BlueprintTypedLoader<String, GlobalCnfg>(
 				BlueprintTypedLoaderCmdCoverTest.class, String.class, GlobalCnfg.class);
 		CommandLineToCover cmd = new CommandLineToCover(
@@ -30,7 +30,7 @@ public class BlueprintTypedLoaderCmdCoverTest {
 	}
 
 	@Test
-	public void parsing() throws Exception {
+	public void parsing() {
 		assertEquals("Lang code wrong!", "en-GB", blueprint.getGlobal().get("lang", String.class));
 		assertEquals("Country code wrong!", "GB", blueprint.getGlobal().get("country", String.class));
 		assertArrayEquals("Ints wrong!", new int[] { 0, 14 }, blueprint.getGlobal().get("ints", int[].class));
@@ -48,7 +48,7 @@ public class BlueprintTypedLoaderCmdCoverTest {
 	}
 
 	@Test
-	public void injection() throws Exception {
+	public void injection() {
 		Preprocessor preprocessor = (Preprocessor) gr.findPipeworkById("Preprocessor-id").getPipe();
 
 		assertEquals("Country code wrong!", "GB", preprocessor.country);

@@ -1,0 +1,20 @@
+{
+	"input": "aB-43",
+	"test": {
+		"Preprocessor-id": {
+			"input": "aB-43"
+		},
+		"Branching-id": {
+			"input": "aB-43-t",
+			"output": "AB-43-T"
+		},
+		"Truecaser-id": {
+			"input": "",
+			"output": ""
+		},
+		"Lowercase-id": {
+			"input": "",
+			"output": ""
+		}
+	}
+}

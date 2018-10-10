@@ -3,7 +3,6 @@ package net.alagris;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-
 //Not part of public interface
 class HashMaps {
 

@@ -26,7 +26,7 @@ public class BlueprintTypedLoaderCoverTest {
 	}
 
 	@Test
-	public void parsing() throws Exception {
+	public void parsing() {
 		assertEquals("Lang code wrong!", "pl-PL", blueprint.getGlobal().get("lang", String.class));
 		assertEquals("Country code wrong!", "PL", blueprint.getGlobal().get("country", String.class));
 		assertArrayEquals("Ints wrong!", new int[] { 99, 1499, 43 }, blueprint.getGlobal().get("ints", int[].class));
@@ -41,7 +41,7 @@ public class BlueprintTypedLoaderCoverTest {
 	}
 
 	@Test
-	public void injection() throws Exception {
+	public void injection() {
 		Preprocessor preprocessor = (Preprocessor) gr.findPipeworkById("Preprocessor-id").getPipe();
 
 		assertEquals("Country code wrong!", "PL", preprocessor.country);

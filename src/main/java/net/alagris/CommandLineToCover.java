@@ -13,7 +13,8 @@ public class CommandLineToCover {
 		this.args = args;
 	}
 
-	public <T extends GlobalConfig> BlueprintCover<T> make(Class<T> config) throws ParseException, DuplicateIdException, InstantiationException, IllegalAccessException {
+	public <T extends GlobalConfig> BlueprintCover<T> make(Class<T> config)
+			throws ParseException, DuplicateIdException, InstantiationException, IllegalAccessException {
 		BlueprintCover<T> cover = new BlueprintCover<>();
 		cover.setGlobal(config.newInstance());
 		NodeCover currentNode = null; // global is default
@@ -39,11 +40,11 @@ public class CommandLineToCover {
 					throw new ParseException("missing variable name: " + arg, 0);
 				}
 				final Object objVal;
-				if(value.equals("")) {
+				if (value.equals("")) {
 					objVal = null;
-				}else if(value.startsWith("[") && value.endsWith("]")){
-					objVal = value.substring(1, value.length()-1).split("\\s*,\\s*");
-				}else {
+				} else if (value.startsWith("[") && value.endsWith("]")) {
+					objVal = value.substring(1, value.length() - 1).split("\\s*,\\s*");
+				} else {
 					objVal = value;
 				}
 				if (currentNode == null) { // global

@@ -51,7 +51,7 @@ public class Node implements Identifiable {
 	public void setAlternatives(HashMap<String, ArrayList<Node>> alternatives) {
 		this.alternatives = alternatives;
 	}
-	
+
 	void applyCover(NodeCover cover) {
 		config.putAll(cover.getConfig());
 	}

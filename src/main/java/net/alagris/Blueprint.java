@@ -17,8 +17,8 @@ import com.fasterxml.jackson.databind.ObjectReader;
  * to use Blueprint you should convert it to (immutable) Group. BlueprintLoader
  * allows for such operations.
  */
-public class Blueprint<T extends GlobalConfig> {
-	private T global;
+public class Blueprint<Cnfg extends GlobalConfig> {
+	private Cnfg global;
 
 	private ArrayList<Node> pipeline = new ArrayList<>();
 
@@ -71,11 +71,11 @@ public class Blueprint<T extends GlobalConfig> {
 		}
 	}
 
-	public T getGlobal() {
+	public Cnfg getGlobal() {
 		return global;
 	}
 
-	public void setGlobal(T global) {
+	public void setGlobal(Cnfg global) {
 		this.global = global;
 	}
 
@@ -122,15 +122,15 @@ public class Blueprint<T extends GlobalConfig> {
 		}
 	}
 
-	public void applyCover(String cover, Class<T> config) throws IOException {
+	public void applyCover(String cover, Class<Cnfg> config) throws IOException {
 		applyCover(BlueprintCover.load(cover, config));
 	}
 
-	public void applyCover(File cover, Class<T> config) throws IOException {
+	public void applyCover(File cover, Class<Cnfg> config) throws IOException {
 		applyCover(BlueprintCover.load(cover, config));
 	}
 
-	public void applyCover(final BlueprintCover<T> cover) {
+	public void applyCover(final BlueprintCover<Cnfg> cover) {
 		global.applyCover(cover.getGlobal());
 		forEachNode(new NodeCallback() {
 			@Override

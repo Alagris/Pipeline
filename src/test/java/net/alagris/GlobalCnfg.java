@@ -8,18 +8,19 @@ public class GlobalCnfg extends DoubleHashGlobalConfig {
 
 	@JsonIgnore
 	private Locale locale;
-	
+
 	private String country;
-	
+
 	@Override
 	public void onLoad() {
 		String lang = (String) getOpts().get("lang");
 		if (lang != null) {
 			locale = Locale.forLanguageTag(lang);
 			setProgrammaticOpt("locale", locale);
-			setProgrammaticOpt("country", lang.substring(Math.max(0,lang.length()-2)));
+			setProgrammaticOpt("country", lang.substring(Math.max(0, lang.length() - 2)));
 		}
 	}
+
 	@Override
 	public void applyCover(GlobalConfig other) {
 		super.applyCover(other);

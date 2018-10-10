@@ -30,40 +30,56 @@ public class BlueprintLoader {
 		this(modulesPackageForClass.getPackage());
 	}
 
-	public <T, C extends GlobalConfig> Group<T> make(String json, Class<T> workType, Class<C> config)
+	public <T, C extends GlobalConfig> Group<T> make(String json, Class<T> cargo, Class<C> config,
+			ProcessingCallback<T> processing) throws JsonProcessingException, IOException, DuplicateIdException {
+		return make(Blueprint.load(json, config), cargo, processing);
+	}
+
+	public <T, C extends GlobalConfig> Group<T> make(String json, Class<T> cargo, Class<C> config)
 			throws JsonProcessingException, IOException, DuplicateIdException {
-		return make(Blueprint.load(json, config), workType);
+		return make(json, cargo, config, null);
 	}
 
-	public <T, C extends GlobalConfig> Group<T> make(File f, Class<T> workType, Class<C> config)
+	public <T, C extends GlobalConfig> Group<T> make(File f, Class<T> cargo, Class<C> config,
+			ProcessingCallback<T> processing) throws JsonProcessingException, IOException, DuplicateIdException {
+		return make(Blueprint.load(f, config), cargo, processing);
+	}
+
+	public <T, C extends GlobalConfig> Group<T> make(File f, Class<T> cargo, Class<C> config)
 			throws JsonProcessingException, IOException, DuplicateIdException {
-		return make(Blueprint.load(f, config), workType);
+		return make(f, cargo, config, null);
 	}
 
-	public <T, C extends GlobalConfig> Group<T> make(Blueprint<C> blueprint, Class<T> workType) {
-		return make(blueprint.getPipeline(), workType, blueprint.getGlobal());
+	public <T, C extends GlobalConfig> Group<T> make(Blueprint<C> blueprint, Class<T> cargo,
+			ProcessingCallback<T> processing) {
+		return make(blueprint.getPipeline(), cargo, blueprint.getGlobal(), processing);
 	}
 
-	private <T, C extends GlobalConfig> Group<T> make(ArrayList<Node> pipeline, final Class<T> workType,
-			final C globalConfig) {
+	public <T, C extends GlobalConfig> Group<T> make(Blueprint<C> blueprint, Class<T> cargo) {
+		return make(blueprint, cargo, null);
+	}
 
-		final ArrayList<Pipework<T>> gr = ArrayLists.convert(new Converter<Node, Pipework<T>>() {
+	private <Cargo, C extends GlobalConfig> Group<Cargo> make(ArrayList<Node> pipeline, final Class<Cargo> cargo,
+			final C globalConfig, final ProcessingCallback<Cargo> processing) {
+
+		final ArrayList<Pipework<Cargo>> gr = ArrayLists.convert(new Converter<Node, Pipework<Cargo>>() {
 
 			@Override
-			public Pipework<T> convert(Node f) {
+			public Pipework<Cargo> convert(Node f) {
 				final Map<String, Object> cnfg = Collections.unmodifiableMap(f.getConfig());
-				final HashMap<String, Group<T>> alts = makeAlternatives(workType, globalConfig, f);
-				final Map<String, Group<T>> unmodAlts = Collections.unmodifiableMap(alts);
+				final HashMap<String, Group<Cargo>> alts = makeAlternatives(cargo, globalConfig, f);
+				final Map<String, Group<Cargo>> unmodAlts = Collections.unmodifiableMap(alts);
 				final String className = modulesPackage + "." + f.getName();
-				final Pipe<T> pipe = buildPipe(globalConfig, cnfg, className);
-				return new Pipework<T>(cnfg, unmodAlts, pipe, f.getId());
+				final Pipe<Cargo> pipe = buildPipe(globalConfig, cnfg, className);
+				return new Pipework<Cargo>(cnfg, unmodAlts, pipe, f.getId());
 			}
 
-			private Pipe<T> buildPipe(final C globalConfig, final Map<String, Object> cnfg, final String className) {
+			private Pipe<Cargo> buildPipe(final C globalConfig, final Map<String, Object> cnfg,
+					final String className) {
 				try {
 					@SuppressWarnings("unchecked")
-					final Class<Pipe<T>> pipeClass = (Class<Pipe<T>>) Class.forName(className);
-					final Pipe<T> pipe = pipeClass.newInstance();
+					final Class<Pipe<Cargo>> pipeClass = (Class<Pipe<Cargo>>) Class.forName(className);
+					final Pipe<Cargo> pipe = pipeClass.newInstance();
 					injectFields(globalConfig, cnfg, pipe, pipeClass);
 					pipe.onLoad();
 					return pipe;
@@ -73,17 +89,18 @@ public class BlueprintLoader {
 
 			}
 
-			private HashMap<String, Group<T>> makeAlternatives(final Class<T> workType, final C globalConfig, Node f) {
-				return HashMaps.convert(new Converter<ArrayList<Node>, Group<T>>() {
+			private HashMap<String, Group<Cargo>> makeAlternatives(final Class<Cargo> cargo, final C globalConfig,
+					Node f) {
+				return HashMaps.convert(new Converter<ArrayList<Node>, Group<Cargo>>() {
 					@Override
-					public Group<T> convert(ArrayList<Node> f) {
-						return make(f, workType, globalConfig);
+					public Group<Cargo> convert(ArrayList<Node> f) {
+						return make(f, cargo, globalConfig, processing);
 					}
 				}, f.getAlternatives());
 			}
 
-			private void injectFields(final C globalConfig, final Map<String, Object> cnfg, final Pipe<T> pipe,
-					final Class<Pipe<T>> pipeClass) {
+			private void injectFields(final C globalConfig, final Map<String, Object> cnfg, final Pipe<Cargo> pipe,
+					final Class<Pipe<Cargo>> pipeClass) {
 				ReflectionUtils.doWithFields(pipeClass, new FieldCallback() {
 
 					@SuppressWarnings("unchecked")
@@ -133,6 +150,14 @@ public class BlueprintLoader {
 			}
 		}, pipeline);
 
-		return new Group<T>(gr);
+		return new Group<Cargo>(gr, processing);
+	}
+
+	public <Cargo, TestUnit, Verifier extends PipeTestVerifier<Cargo, TestUnit>, Cnfg extends GlobalConfig> GroupTest<Cargo, TestUnit> makeTest(
+			BlueprintLoader loader, Verifier verifier, Class<Cargo> cargo, Blueprint<Cnfg> blueprint) {
+		TestProcessingCallback<Cargo, TestUnit, PipeTestVerifier<Cargo, TestUnit>> processing = new TestProcessingCallback<Cargo, TestUnit, PipeTestVerifier<Cargo, TestUnit>>(
+				verifier);
+		Group<Cargo> test = loader.make(blueprint, cargo, processing);
+		return new GroupTest<>(test, processing);
 	}
 }

@@ -1,7 +1,7 @@
 package net.alagris;
 
-public class Output<T> {
-	private final T value;
+public class Output<Cargo> {
+	private final Cargo value;
 	private final String alternative;
 
 	public static <T> Output<T> left(T value) {
@@ -16,16 +16,16 @@ public class Output<T> {
 		return new Output<T>(value);
 	}
 
-	public Output(T value) {
+	public Output(Cargo value) {
 		this(value, null);
 	}
 
-	public Output(T value, String alternative) {
+	public Output(Cargo value, String alternative) {
 		this.value = value;
 		this.alternative = alternative;
 	}
 
-	public T getValue() {
+	public Cargo getValue() {
 		return value;
 	}
 

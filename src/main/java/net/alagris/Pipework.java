@@ -4,16 +4,17 @@ import java.util.Map;
 
 /**
  * Pipework is a mature version of Node. Each Pipework contains and supervises
- * one {@link Pipe}. It is not mutable. Multiple Pipeworks make up a {@link Group}.
+ * one {@link Pipe}. It is not mutable. Multiple Pipeworks make up a
+ * {@link Group}.
  */
-public class Pipework<T> implements AutoCloseable {
+public class Pipework<Cargo> implements AutoCloseable {
 
 	private final Map<String, Object> config;
-	private final Map<String, Group<T>> alternatives;
-	private final Pipe<T> pipe;
+	private final Map<String, Group<Cargo>> alternatives;
+	private final Pipe<Cargo> pipe;
 	private final String id;
 
-	public Pipework(Map<String, Object> config, Map<String, Group<T>> alternatives, Pipe<T> pipe, String id) {
+	public Pipework(Map<String, Object> config, Map<String, Group<Cargo>> alternatives, Pipe<Cargo> pipe, String id) {
 		this.config = config;
 		this.alternatives = alternatives;
 		this.pipe = pipe;
@@ -24,21 +25,20 @@ public class Pipework<T> implements AutoCloseable {
 		return config;
 	}
 
-	public Map<String, Group<T>> getAlternatives() {
+	public Map<String, Group<Cargo>> getAlternatives() {
 		return alternatives;
 	}
 
-	public Pipe<T> getPipe() {
+	public Pipe<Cargo> getPipe() {
 		return pipe;
 	}
 
-	// Not part of public interface
-	T process(T input) {
-		Output<T> out = pipe.process(input);
+	public Cargo process(Cargo input) {
+		Output<Cargo> out = pipe.process(input);
 		if (Logger.verbose) {
 			System.out.println(pipe.getClass().getSimpleName() + ":\t" + out.getValue().toString());
 		}
-		Group<T> alt = alternatives.get(out.getAlternative());
+		Group<Cargo> alt = alternatives.get(out.getAlternative());
 		if (alt != null) {
 			return alt.process(out.getValue()).getValue();
 		}

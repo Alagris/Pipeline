@@ -1,0 +1,20 @@
+{
+	"input": "That's the spirit!",
+	"test": {
+		"Preprocessor-id": {
+			"input": "That's the spirit!"
+		},
+		"Branching-id": {
+			"input": "That's the spirit!-t",
+			"output": "THAT'S THE SPIRIT!-T"
+		},
+		"Truecaser-id": {
+			"input": "",
+			"output": ""
+		},
+		"Lowercase-id": {
+			"input": "",
+			"output": ""
+		}
+	}
+}

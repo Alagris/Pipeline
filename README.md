@@ -5,56 +5,56 @@
 ``Pipeline`` is a a tiny library that allows for sequential data processing. Below you can find a usage example. First of all you need to create JSON file like this:
 
     {
-    	"global": {
-    		"lang": "es-ES",
-    		"suffix": "-g",
-    		"strings": [
-    			"string one",
-    			"and two"
-    		],
-    		"ints": [
-    			"0",
-    			"14"
-    		]
-    	},
-    	"pipeline": [
-    		{
-    			"name": "Preprocessor",
-    			"id": "Preprocessor-id",
-    			"config": {
-    				"suffix_": "-t",
-    				"enabled": "true"
-    			}
-    		},
-    		{
-    			"name": "Branching",
-    			"id": "Branching-id",
-    			"config": {
-    				"num1": "1",
-    				"num2": "2"
-    			},
-    			"alternatives": {
-    				"left": [
-    					{
-    						"name": "Uppercase"
-    						"id": "Uppercase-id",
-    					}
-    				],
-    				"right": [
-    					{
-    						"name": "Lowercase"
-    						"id": "Lowercase-id",
-    					}
-    				]
-    			}
-    		},
-    		{
-    			"name": "Trim"
-    		},
-    		{
-    			"name": "Fix"
-    		}
-    	]
+        "global": {
+            "lang": "es-ES",
+            "suffix": "-g",
+            "strings": [
+                "string one",
+                "and two"
+            ],
+            "ints": [
+                "0",
+                "14"
+            ]
+        },
+        "pipeline": [
+            {
+                "name": "Preprocessor",
+                "id": "Preprocessor-id",
+                "config": {
+                    "suffix_": "-t",
+                    "enabled": "true"
+                }
+            },
+            {
+                "name": "Branching",
+                "id": "Branching-id",
+                "config": {
+                    "num1": "1",
+                    "num2": "2"
+                },
+                "alternatives": {
+                    "left": [
+                        {
+                            "name": "Uppercase"
+                            "id": "Uppercase-id",
+                        }
+                    ],
+                    "right": [
+                        {
+                            "name": "Lowercase"
+                            "id": "Lowercase-id",
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Trim"
+            },
+            {
+                "name": "Fix"
+            }
+        ]
     }
     
 ### Basics
@@ -63,39 +63,39 @@ Then you need to create classes ``Preprocessor``, ``Branching``, ``Uppercase``, 
 
     public class Autofixer implements Pipe<String>{
 
-    	@Override
-    	public Output<String> process(String input) {
-    		return new Output<String>(input);
-    	}
+        @Override
+        public Output<String> process(String input) {
+            return new Output<String>(input);
+        }
     
-    	@Override
-    	public void onLoad() {
-    		
-    	}
-    }	
-	
+        @Override
+        public void onLoad() {
+            
+        }
+    }    
+    
 Or if you wish to make a pipe optional (so you can use ``"enable":"false"`` to temporarily disable it) just extend ``OptionalPipe``
 
     public class Preprocessor extends OptionalPipe<String> {
     
-    	@Config
-    	String suffix;
+        @Config
+        String suffix;
     
-    	@Config
-    	String[] paths;
+        @Config
+        String[] paths;
     
-    	@Config
-    	int[] ints;
+        @Config
+        int[] ints;
     
-    	@Override
-    	public Output<String> proc(String input) {
-    		return new Output<String>(input + suffix);
-    	}
+        @Override
+        public Output<String> proc(String input) {
+            return new Output<String>(input + suffix);
+        }
     
-    	@Override
+        @Override
         public void onLoad() {
 
-	    }
+        }
     }
     
 Fields annotated with ``@Config`` will be injected with values specified in JSON. For example to inject
@@ -127,18 +127,18 @@ Pipelines can branch into subpipelines. This is what ``"alternatives":{}`` is fo
 
     public class Branching implements Pipe<String> {
     
-    	@Override
-    	public Output<String> process(String input) {
-    	    if(input.length() < 5 ){
-    		    return Output.right(input);
-    		}else{
-    		    return Output.left(input);
-    		}
-    	}
+        @Override
+        public Output<String> process(String input) {
+            if(input.length() < 5 ){
+                return Output.right(input);
+            }else{
+                return Output.left(input);
+            }
+        }
     
-    	@Override
-    	public void onLoad() {
-    	}
+        @Override
+        public void onLoad() {
+        }
     }
 
 You can configure your own class for the ``"global"`` configurations or use one if premade generic classes:
@@ -153,58 +153,58 @@ Here is an example of custom class that uses ``DoubleHashGlobalConfig``:
     
     public class GlobalCnfg extends DoubleHashGlobalConfig {
     
-    	@JsonIgnore
-    	private Locale locale;
-    	
-    	@JsonIgnore
-    	private String country;
-    	
-    	@Override
-    	public void onLoad() {
-    		String lang = (String) getOpts().get("lang");
-    		if (lang != null) {
-    			locale = Locale.forLanguageTag(lang);
-    			setProgrammaticOpt("locale", locale);
-    			 // You can then inject Locale 
-		    	// directly with @Config like this:
-		    	//
-		    	// @Config
-		    	// Locale locale;
-    			setProgrammaticOpt("country", lang.substring(Math.max(0,lang.length()-2)));
-    		}
-    	}
+        @JsonIgnore
+        private Locale locale;
+        
+        @JsonIgnore
+        private String country;
+        
+        @Override
+        public void onLoad() {
+            String lang = (String) getOpts().get("lang");
+            if (lang != null) {
+                locale = Locale.forLanguageTag(lang);
+                setProgrammaticOpt("locale", locale);
+                 // You can then inject Locale 
+                // directly with @Config like this:
+                //
+                // @Config
+                // Locale locale;
+                setProgrammaticOpt("country", lang.substring(Math.max(0,lang.length()-2)));
+            }
+        }
     
-    	public Locale getLocale() {
-    		return locale;
-    	}
+        public Locale getLocale() {
+            return locale;
+        }
     
-    	public void setLocale(Locale locale) {
-    		this.locale = locale;
-    	}
+        public void setLocale(Locale locale) {
+            this.locale = locale;
+        }
     
-    	public String getCountry() {
-    		return country;
-    	}
+        public String getCountry() {
+            return country;
+        }
     
-    	public void setCountry(String country) {
-    		this.country = country;
-    	}
+        public void setCountry(String country) {
+            this.country = country;
+        }
     
     }
 
 
 Once you have everything ready you can finally run the pipeline with this piece of code:
 
-    BlueprintLoader loader = new BlueprintLoader("net.alagris");
-	try {
-	    File jsonFile = ...;
-	    Blueprint<GlobalCnfg> blueprint = Blueprint.load(jsonFile ,GlobalCnfg.class);
-		System.out.println(blueprint);
-		Group<String> gr = loader.make(blueprint, String.class);
-		System.out.println(gr.process("sOmE sTrInG").getValue());
-	} catch (IOException e) {
-		e.printStackTrace();
-	}
+    BlueprintLoader loader = new BlueprintLoader("your.package.with.pipe.classes");
+    try {
+        File jsonFile = ...;
+        Blueprint<GlobalCnfg> blueprint = Blueprint.load(jsonFile ,GlobalCnfg.class);
+        System.out.println(blueprint);
+        Group<String> gr = loader.make(blueprint, String.class);
+        System.out.println(gr.process("sOmE sTrInG").getValue());
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
 
 Notice that your pipeline might operate on anything. It doesn't have to be ``String``. Just change generic parameters into some other class.
 
@@ -215,42 +215,42 @@ By default pipeline prints intermediate outputs. You can change level of verbosi
 Sometimes you might wish to reuse existing pipeline with some tiny configuration modifications. This is exactly what BlueprintCover is for. JSON example:
 
     {
-    	"global": {
-    		"lang": "pl-PL",
-    		"suffix": "-g",
-    		"paths": [
-    			"tap1",
-    			"tap2"
-    		],
-    		"ints": [
-    			"099",
-    			"1499",
-    			"43"
-    		]
-    	},
-    	"cover": {
-    		"Preprocessor-id": {
-    			"config": {
-    				"suffix": "-new"
-    			}
-    		},
-    		"Branching-id": {
-    			"config": {
-    				"left": "10",
-    				"right": "20"
-    			}
-    		},
-    		"Uppercase-id": {
-    			"config": {
-    				"enabled": "false"
-    			}
-    		},
-    		"Lowercase-id": {
-    			"config": {
-    				"enabled": "false"
-    			}
-    		}
-    	}
+        "global": {
+            "lang": "pl-PL",
+            "suffix": "-g",
+            "paths": [
+                "tap1",
+                "tap2"
+            ],
+            "ints": [
+                "099",
+                "1499",
+                "43"
+            ]
+        },
+        "cover": {
+            "Preprocessor-id": {
+                "config": {
+                    "suffix": "-new"
+                }
+            },
+            "Branching-id": {
+                "config": {
+                    "left": "10",
+                    "right": "20"
+                }
+            },
+            "Uppercase-id": {
+                "config": {
+                    "enabled": "false"
+                }
+            },
+            "Lowercase-id": {
+                "config": {
+                    "enabled": "false"
+                }
+            }
+        }
     }
 
 You can apply this cover with a method like this:
@@ -262,14 +262,14 @@ You can apply this cover with a method like this:
 There is a nice and simple utility called ``CommandLineToCover``. It allows you to parse incoming command line parameters and turn them into ``BlueprintCover``. 
 
     public static void main(String[] args) {
-    	CommandLineToCover cmdCover = new CommandLineToCover(args);
-    	try {
-    		BlueprintCover<GlobalCnfg> cover = cmdCover.make(GlobalCnfg.class);
-    		Blueprint<GlobalCnfg> blueprint = ...;
-    		blueprint.applyCover(cover);
-    	} catch (InstantiationException | IllegalAccessException | ParseException | DuplicateIdException e) {
-    		e.printStackTrace();
-    	}
+        CommandLineToCover cmdCover = new CommandLineToCover(args);
+        try {
+            BlueprintCover<GlobalCnfg> cover = cmdCover.make(GlobalCnfg.class);
+            Blueprint<GlobalCnfg> blueprint = ...;
+            blueprint.applyCover(cover);
+        } catch (InstantiationException | IllegalAccessException | ParseException | DuplicateIdException e) {
+            e.printStackTrace();
+        }
     }
     
 The format for such parameters is:
@@ -280,21 +280,92 @@ Example:
 
     $java -jar myApp.jar paths="[my/path, /etc]" lang=en-GB --Preprocessor-id suffix="su fix" paths="[/try/hard]" --Branching-id left=X right=Y
     
+### Tests
+
+Pipeline makes it very easy for you to create tests.
+First you define test JSON:
+
+    {
+        "input": "aB-43",
+        "test": {
+            "Preprocessor-id": {
+                "input": "aB-43"
+            },
+            "Branching-id": {
+                "input": "aB-43-t",
+                "output": "AB-43-T"
+            },
+            "Truecaser-id": {
+                "input": "",
+                "output": ""
+            },
+            "Lowercase-id": {
+                "input": "",
+                "output": ""
+            }
+        }
+    }
+    
+Then you create testing pipeline:
+
+
+    BlueprintLoader loader = new BlueprintLoader("your.package.with.pipe.classes");
+
+    File jsonFile = ...;
+    Blueprint<GlobalCnfg> blueprint = Blueprint.load(jsonFile ,GlobalCnfg.class);
+    /**Verifier checks if produced Cargo is acceptable by TestUnit*/
+    PipeTestVerifier<Cargo, TestUnit> verifier = ...; 
+    GroupTest<Cargo, TestUnit> testPipeline = loader.makeTest(blueprint, verifier);
+    BlueprintTest<Cargo, TestUnit> blueprintTest = BlueprintTest.load(new File(...),Cargo.class,TestUnit.class);
+        
+
+and run it:
+
+    testPipeline.runWith(blueprintTest);
+    
+``Cargo`` should be your class that carries data inside pipeline (most basic example is just plain String as in previous examples).
+``TestUnit `` is the class that deserializes ``"input":...`` and ``"output":...``. Simplest choice is String but it might be for example something like this:
+
+java:
+
+    class TestUnit{
+        int someInt;
+        String stringA;
+        String stringB;
+    }
+
+json:
+
+    {
+        "input": "blah",
+        "test": {
+            "Preprocessor-id": {
+                "output": {
+                    "stringA": "nice",
+                    "stringB": "420",
+                    "someInt": "69"
+                 }
+            }
+        }
+    }
+    
+You can very easily use this from JUnit (although it works separate just fine).
+
 ### Convenience and extras
 
 If you plan on applying many covers and loading multiple pipelines but all with the same generic types you might choose to use ``BlueprintTypedLoader``. Example:
 
     try {
-    	//you specify classes only once in the contructor
-    	BlueprintTypedLoader<String, GlobalCnfg> loader = new BlueprintTypedLoader<String, GlobalCnfg>(Main.class,
-    			String.class, GlobalCnfg.class);
-    	//and then those classes are filled in for you
-    	Blueprint<GlobalCnfg> blueprint = loader.load(new File("pipeline.json"));
-    	loader.applyCover(blueprint, new File("cover.json"));
-    	Group<String> gr = loader.make(blueprint);
-    	gr.close();
+        //you specify classes only once in the contructor
+        BlueprintTypedLoader<String, GlobalCnfg> loader = new BlueprintTypedLoader<String, GlobalCnfg>(Main.class,
+                String.class, GlobalCnfg.class);
+        //and then those classes are filled in for you
+        Blueprint<GlobalCnfg> blueprint = loader.load(new File("pipeline.json"));
+        loader.applyCover(blueprint, new File("cover.json"));
+        Group<String> gr = loader.make(blueprint);
+        gr.close();
     } catch (Exception e) {
-    	e.printStackTrace();
+        e.printStackTrace();
     }
 
 # Download
@@ -302,19 +373,19 @@ If you plan on applying many covers and loading multiple pipelines but all with 
 ## Maven
 
     <repositories>
-    	<repository>
-    		<id>pipeline</id>
-    		<url>https://raw.github.com/Alagris/Pipeline/repository/</url>
-    	</repository>
+        <repository>
+            <id>pipeline</id>
+            <url>https://raw.github.com/Alagris/Pipeline/repository/</url>
+        </repository>
     </repositories>
     
     <dependencies>
-    	<dependency>
-    		<groupId>pipeline</groupId>
-    		<artifactId>pipeline</artifactId>
-    		<version>1.0</version>
-    	</dependency>
-    </dependencies>	
+        <dependency>
+            <groupId>pipeline</groupId>
+            <artifactId>pipeline</artifactId>
+            <version>1.2</version>
+        </dependency>
+    </dependencies>    
     
 ## Gradle
 
@@ -324,5 +395,5 @@ If you plan on applying many covers and loading multiple pipelines but all with 
     }
     
     dependencies {
-    	compile group: 'pipeline', name: 'pipeline', version:'1.0'
+        compile group: 'pipeline', name: 'pipeline', version:'1.2'
     }

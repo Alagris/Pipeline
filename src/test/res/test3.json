@@ -1,0 +1,20 @@
+{
+	"input": "1 i Love Lasagne",
+	"test": {
+		"Preprocessor-id": {
+			"input": "1 i Love Lasagne"
+		},
+		"Branching-id": {
+			"input": "1 i Love Lasagne-t",
+			"output": "1 I LOVE LASAGNE-T"
+		},
+		"Truecaser-id": {
+			"input": "",
+			"output": ""
+		},
+		"Lowercase-id": {
+			"input": "",
+			"output": ""
+		}
+	}
+}
