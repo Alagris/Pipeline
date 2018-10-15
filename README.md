@@ -280,6 +280,41 @@ Example:
 
     $java -jar myApp.jar paths="[my/path, /etc]" lang=en-GB --Preprocessor-id suffix="su fix" paths="[/try/hard]" --Branching-id left=X right=Y
     
+### Aliases
+
+A very useful feature that suppliments IDs is aliases. Every pipe can be assigned to zero or more of them. Here is how:
+
+    "aliases": { // here you define allowed aliases
+        "preprocessors": { // alias name
+            "fields": [ // specify which fields can be affected by this alias
+                "enabled"
+            ]
+        },
+        "suffixed": {
+            "fields": [
+                "enabled",
+                "suffix"
+            ]
+        }
+    },
+    "pipeline": [
+        ...
+        {
+            "name": "Preprocessor",
+            "id": "Preprocessor-id",
+            "config": {
+                "suffix": "-t1"
+            },
+            "aliases": [
+                "preprocessors",
+                "suffixed",
+            ]
+        }
+        ...
+    ]
+    
+Then you can apply covers and use aliases just like you use IDs. The only difference is that while ID affects only one single pipe (and you can cover any configuration field you wish), an alias affects every aliased pipe but restricts which fields can be modified. Notice that if one pipe is affected by multiple aliases, then they are applied in the order in which they were defined in ``"aliases": {...}`` (and ID-specific covers are applied at the very end, after all aliases)
+    
 ### Tests
 
 Pipeline makes it very easy for you to create tests.
