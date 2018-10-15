@@ -1,0 +1,15 @@
+{
+	"cover": {
+		"preprocessors": {
+			"config": {
+				"suffix": "-s",
+				"enabled": "true"
+			}
+		},
+		"truecasers": {
+			"config": {
+				"enabled": "false"
+			}
+		}
+	}
+}

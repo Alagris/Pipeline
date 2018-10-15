@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -31,22 +32,24 @@ public class BlueprintLoader {
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(String json, Class<T> cargo, Class<C> config,
-			ProcessingCallback<T> processing) throws JsonProcessingException, IOException, DuplicateIdException {
+			ProcessingCallback<T> processing)
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return make(Blueprint.load(json, config), cargo, processing);
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(String json, Class<T> cargo, Class<C> config)
-			throws JsonProcessingException, IOException, DuplicateIdException {
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return make(json, cargo, config, null);
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(File f, Class<T> cargo, Class<C> config,
-			ProcessingCallback<T> processing) throws JsonProcessingException, IOException, DuplicateIdException {
+			ProcessingCallback<T> processing)
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return make(Blueprint.load(f, config), cargo, processing);
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(File f, Class<T> cargo, Class<C> config)
-			throws JsonProcessingException, IOException, DuplicateIdException {
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return make(f, cargo, config, null);
 	}
 
@@ -111,7 +114,11 @@ public class BlueprintLoader {
 
 					<T2> void setField(Class<T2> c, Field field, Config annotation)
 							throws IllegalArgumentException, IllegalAccessException {
-						setField(c, makeObject(globalConfig, field, annotation), field);
+						try {
+							setField(c, makeObject(globalConfig, field, annotation), field);
+						} catch (NoSuchElementException e) {
+							// Nothing to inject and that's ok
+						}
 					}
 
 					@Override
@@ -141,9 +148,16 @@ public class BlueprintLoader {
 
 					private Object makeObject(final C globalConfig, Field field, final String name, final Object val) {
 						if (val == null) {
+							if (globalConfig == null) {
+								throw new NoSuchElementException();
+							}
 							return globalConfig.get(name, field.getType());
 						} else {
-							return Classes.parseObject(field.getType(), val);
+							Object out = Classes.parseObject(field.getType(), val);
+							if (out == null) {
+								throw new NoSuchElementException();
+							}
+							return out;
 						}
 					}
 				});

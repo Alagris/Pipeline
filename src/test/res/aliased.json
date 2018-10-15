@@ -1,0 +1,80 @@
+{
+	"aliases": {
+		"truecasers": {
+			"fields": [
+				"enabled"
+			]
+		},
+		"preprocessors": {
+			"fields": [
+				"enabled",
+				"suffix"
+			]
+		}
+	},
+	"pipeline": [
+		{
+			"name": "Preprocessor",
+			"id": "Preprocessor-id0",
+			"config": {
+				"suffix": "-t1"
+			},
+			"aliases": [
+				"preprocessors"
+			]
+		},
+		{
+			"name": "Preprocessor",
+			"id": "Preprocessor-id1",
+			"config": {
+				"suffix": "-t2"
+			},
+			"aliases": [
+				"preprocessors"
+			]
+		},
+		{
+			"name": "Preprocessor",
+			"id": "Preprocessor-id2",
+			"config": {
+				"suffix": "-t3"
+			},
+			"aliases": [
+				"preprocessors"
+			]
+		},
+		{
+			"name": "Lowercase",
+			"id": "Lowercase-id",
+			"config": {
+				"enabled": "true"
+			},
+			"aliases": [
+				"truecasers"
+			]
+		},
+		{
+			"name": "UppercaseFirst",
+			"id": "Truecaser-id",
+			"config": {
+				"enabled": "true"
+			},
+			"aliases": [
+				"truecasers"
+			]
+		},
+		{
+			"name": "Uppercase",
+			"id": "Uppercase-id",
+			"config": {
+				"enabled": "true"
+			},
+			"aliases": [
+				"truecasers"
+			]
+		},
+		{
+			"name": "Trim"
+		}
+	]
+}

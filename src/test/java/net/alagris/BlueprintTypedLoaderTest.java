@@ -17,7 +17,7 @@ public class BlueprintTypedLoaderTest {
 	Group<String> gr;
 	Blueprint<GlobalCnfg> blueprint;
 
-	public BlueprintTypedLoaderTest() throws JsonProcessingException, IOException, DuplicateIdException {
+	public BlueprintTypedLoaderTest() throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		BlueprintTypedLoader<String, GlobalCnfg> loader = new BlueprintTypedLoader<String, GlobalCnfg>(
 				BlueprintTypedLoaderTest.class, String.class, GlobalCnfg.class);
 		blueprint = loader.load(TestConstants.PIPELINE);
@@ -43,7 +43,7 @@ public class BlueprintTypedLoaderTest {
 	public void injection() {
 		Preprocessor preprocessor = (Preprocessor) gr.findPipeworkById("Preprocessor-id").getPipe();
 		assertEquals("Country code wrong!", "ES", preprocessor.country);
-		assertEquals("Not enabled!", true, preprocessor.enabled);
+		assertEquals("Not enabled!", true, preprocessor.isEnabled());
 		assertArrayEquals("Ints wrong!", new int[] { 0, 14 }, preprocessor.ints);
 		assertArrayEquals("Paths wrong!", new String[] { "tre", "tre4" }, preprocessor.paths);
 		assertEquals("Suffix wrong!", "-t", preprocessor.suffix);

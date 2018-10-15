@@ -35,9 +35,7 @@ public class Pipework<Cargo> implements AutoCloseable {
 
 	public Cargo process(Cargo input) {
 		Output<Cargo> out = pipe.process(input);
-		if (Logger.verbose) {
-			System.out.println(pipe.getClass().getSimpleName() + ":\t" + out.getValue().toString());
-		}
+		Logger.pipeline.log(pipe.getClass().getSimpleName() + ":\t" + out.getValue().toString());
 		Group<Cargo> alt = alternatives.get(out.getAlternative());
 		if (alt != null) {
 			return alt.process(out.getValue()).getValue();

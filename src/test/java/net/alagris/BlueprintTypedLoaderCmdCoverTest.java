@@ -19,7 +19,7 @@ public class BlueprintTypedLoaderCmdCoverTest {
 	Blueprint<GlobalCnfg> blueprint;
 
 	public BlueprintTypedLoaderCmdCoverTest() throws JsonProcessingException, IOException, DuplicateIdException,
-			ParseException, InstantiationException, IllegalAccessException {
+			ParseException, InstantiationException, IllegalAccessException, UndefinedAliasException {
 		BlueprintTypedLoader<String, GlobalCnfg> loader = new BlueprintTypedLoader<String, GlobalCnfg>(
 				BlueprintTypedLoaderCmdCoverTest.class, String.class, GlobalCnfg.class);
 		CommandLineToCover cmd = new CommandLineToCover(
@@ -52,7 +52,7 @@ public class BlueprintTypedLoaderCmdCoverTest {
 		Preprocessor preprocessor = (Preprocessor) gr.findPipeworkById("Preprocessor-id").getPipe();
 
 		assertEquals("Country code wrong!", "GB", preprocessor.country);
-		assertEquals("Not enabled!", true, preprocessor.enabled);
+		assertEquals("Not enabled!", true, preprocessor.isEnabled());
 		assertArrayEquals("Ints wrong!", new int[] { 0, 14 }, preprocessor.ints);
 		assertArrayEquals("Paths wrong!", new String[] { "one", "two", "three" }, preprocessor.paths);
 		assertEquals("dynPaths wrong!", "re", preprocessor.dynPaths.get(0));

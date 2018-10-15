@@ -33,19 +33,19 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 		this.config = config;
 	}
 
-	public Blueprint<Cnfg> load(File f) throws JsonProcessingException, IOException, DuplicateIdException {
+	public Blueprint<Cnfg> load(File f) throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return Blueprint.load(f, getConfig());
 	}
 
-	public Blueprint<Cnfg> load(String s) throws JsonProcessingException, IOException, DuplicateIdException {
+	public Blueprint<Cnfg> load(String s) throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return Blueprint.load(s, getConfig());
 	}
 
-	public Group<Cargo> make(String json) throws JsonProcessingException, IOException, DuplicateIdException {
+	public Group<Cargo> make(String json) throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return make(json, getCargo(), getConfig());
 	}
 
-	public Group<Cargo> make(File f) throws JsonProcessingException, IOException, DuplicateIdException {
+	public Group<Cargo> make(File f) throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return make(f, getCargo(), getConfig());
 	}
 
@@ -65,13 +65,13 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 
 	public <UnitTest> GroupTest<Cargo, UnitTest> makeTest(File blueprintFile,
 			PipeTestVerifier<Cargo, UnitTest> verifier, Class<UnitTest> unit)
-			throws JsonProcessingException, IOException, DuplicateIdException {
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return makeTest(load(blueprintFile), verifier);
 	}
 
 	public <UnitTest> GroupTest<Cargo, UnitTest> makeTest(String blueprintJson,
 			PipeTestVerifier<Cargo, UnitTest> verifier, Class<UnitTest> unit)
-			throws JsonProcessingException, IOException, DuplicateIdException {
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return makeTest(load(blueprintJson), verifier);
 	}
 

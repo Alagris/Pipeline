@@ -21,7 +21,8 @@ public class BlueprintCover<T extends GlobalConfig> {
 	private HashMap<String, NodeCover> cover = new HashMap<>();
 
 	private static <T extends GlobalConfig> BlueprintCover<T> afterParsing(BlueprintCover<T> blueprint) {
-		blueprint.getGlobal().onLoad();
+		if (blueprint.getGlobal() != null)
+			blueprint.getGlobal().onLoad();
 		return blueprint;
 	}
 

@@ -2,6 +2,7 @@ package net.alagris;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 /**
  * Contains configurations loaded from JSON. Every Node is mutable but can later
@@ -13,6 +14,7 @@ public class Node implements Identifiable {
 	private String id;
 	private HashMap<String, Object> config = new HashMap<>();
 	private HashMap<String, ArrayList<Node>> alternatives = new HashMap<>();
+	private String[] aliases;
 
 	public String getName() {
 		return name;
@@ -54,6 +56,25 @@ public class Node implements Identifiable {
 
 	void applyCover(NodeCover cover) {
 		config.putAll(cover.getConfig());
+	}
+
+	public String[] getAliases() {
+		return aliases;
+	}
+
+	public void setAliases(String[] aliases) {
+		this.aliases = aliases;
+	}
+
+	public void applyAlias(NodeCover nodeCover, Alias alias) {
+		for (Entry<String, Object> entry : nodeCover.getConfig().entrySet()) {
+			String field = entry.getKey();
+			if (alias.allowsField(field)) {
+				config.put(field, entry.getValue());
+			} else {
+				Logger.jsonWarnings.log("Tried to set field (" + field + ") not allowed by alias! Pipe: " + getName());
+			}
+		}
 	}
 
 }

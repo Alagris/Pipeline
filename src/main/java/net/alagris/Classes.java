@@ -39,6 +39,17 @@ final class Classes {
 
 	@SuppressWarnings("unchecked")
 	public static Object parseObject(Class<?> type, Object val) {
+		if (val == null) {
+			if (type.isPrimitive()) {
+				if (type == boolean.class) {
+					return false;
+				} else {
+					return 0;
+				}
+			} else {
+				return null;
+			}
+		}
 		if (type.isAssignableFrom(val.getClass())) {
 			return val;
 		}
