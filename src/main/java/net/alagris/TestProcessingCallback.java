@@ -6,10 +6,12 @@ class TestProcessingCallback<Cargo, TestUnit, Verifier extends PipeTestVerifier<
 
 	private final Verifier verifier;
 	private BlueprintTest<Cargo, TestUnit> tests;
+	private final ProcessingExceptionCallback processingExceptionCallback;
 
-	public TestProcessingCallback(Verifier verifier) {
+	public TestProcessingCallback(Verifier verifier, ProcessingExceptionCallback processingExceptionCallback) {
 		if (verifier == null)
 			throw new NullPointerException("verifier parameter is null");
+		this.processingExceptionCallback = processingExceptionCallback;
 		this.verifier = verifier;
 	}
 
@@ -22,7 +24,13 @@ class TestProcessingCallback<Cargo, TestUnit, Verifier extends PipeTestVerifier<
 				throw new TestFailException(true, pipework.getId(), inResult);
 			}
 		}
-		input = pipework.process(input);
+		try {
+			input = pipework.process(input);
+		} catch (Exception e) {
+			if (processingExceptionCallback != null) {
+				processingExceptionCallback.fail(e, input, pipework);
+			}
+		}
 		if (testUnit != null) {
 			TestResult outResult = verifier.verifyOutput(input, testUnit.getOutput());
 			if (!outResult.isPassed()) {

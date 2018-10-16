@@ -13,15 +13,6 @@ public class Group<Cargo> implements Pipe<Cargo> {
 	private final ArrayList<Pipework<Cargo>> group;
 	private final ProcessingCallback<Cargo> callback;
 
-	private static class DefaultProcessing<Cargo> implements ProcessingCallback<Cargo> {
-
-		@Override
-		public Cargo process(Pipework<Cargo> pipework, Cargo input) {
-			return pipework.process(input);
-		}
-
-	}
-
 	public int size() {
 		return group.size();
 	}

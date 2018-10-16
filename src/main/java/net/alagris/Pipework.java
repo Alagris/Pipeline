@@ -33,7 +33,7 @@ public class Pipework<Cargo> implements AutoCloseable {
 		return pipe;
 	}
 
-	public Cargo process(Cargo input) {
+	public Cargo process(Cargo input) throws Exception {
 		Output<Cargo> out = pipe.process(input);
 		Logger.pipeline.log(pipe.getClass().getSimpleName() + ":\t" + out.getValue().toString());
 		Group<Cargo> alt = alternatives.get(out.getAlternative());

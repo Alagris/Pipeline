@@ -1,0 +1,8 @@
+{
+	"pipeline": [
+		{
+			"name": "InstaFail",
+			"id": "Fail-id"
+		}
+	]
+}

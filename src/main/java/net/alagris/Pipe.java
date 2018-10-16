@@ -6,8 +6,8 @@ package net.alagris;
  */
 public interface Pipe<Cargo> extends AutoCloseable {
 
-	void onLoad();
+	void onLoad() throws Exception;
 
-	Output<Cargo> process(Cargo input);
+	Output<Cargo> process(Cargo input) throws Exception;
 
 }

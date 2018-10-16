@@ -33,19 +33,23 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 		this.config = config;
 	}
 
-	public Blueprint<Cnfg> load(File f) throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+	public Blueprint<Cnfg> load(File f)
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return Blueprint.load(f, getConfig());
 	}
 
-	public Blueprint<Cnfg> load(String s) throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+	public Blueprint<Cnfg> load(String s)
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return Blueprint.load(s, getConfig());
 	}
 
-	public Group<Cargo> make(String json) throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+	public Group<Cargo> make(String json)
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return make(json, getCargo(), getConfig());
 	}
 
-	public Group<Cargo> make(File f) throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+	public Group<Cargo> make(File f)
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return make(f, getCargo(), getConfig());
 	}
 
@@ -63,11 +67,13 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 		return BlueprintTest.load(testJson, cargo, unit);
 	}
 
+
 	public <UnitTest> GroupTest<Cargo, UnitTest> makeTest(File blueprintFile,
 			PipeTestVerifier<Cargo, UnitTest> verifier, Class<UnitTest> unit)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return makeTest(load(blueprintFile), verifier);
 	}
+
 
 	public <UnitTest> GroupTest<Cargo, UnitTest> makeTest(String blueprintJson,
 			PipeTestVerifier<Cargo, UnitTest> verifier, Class<UnitTest> unit)
@@ -80,10 +86,12 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 		return makeTest(blueprint, verifier);
 	}
 
+
 	public <UnitTest> GroupTest<Cargo, UnitTest> makeTest(Blueprint<Cnfg> blueprint,
 			PipeTestVerifier<Cargo, UnitTest> verifier) {
-		return makeTest(this, verifier, cargo, blueprint);
+		return makeTest(verifier, cargo, blueprint);
 	}
+
 
 	public BlueprintCover<Cnfg> makeCover(String... args)
 			throws ParseException, DuplicateIdException, InstantiationException, IllegalAccessException {

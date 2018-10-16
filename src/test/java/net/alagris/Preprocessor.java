@@ -20,12 +20,12 @@ public class Preprocessor extends OptionalPipe<String> {
 	ArrayList<String> dynPaths;
 
 	@Override
-	public Output<String> proc(String input) {
+	public Output<String> processOptional(String input) {
 		return new Output<String>(input + suffix);
 	}
 
 	@Override
-	public void onLoad() {
+	public void onLoadOptional() {
 
 	}
 
