@@ -11,17 +11,6 @@ apply plugin: 'java-library'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'org.ajoberstar:gradle-git-publish:<version>'
-    }
-}
-
-apply plugin: 'org.ajoberstar.git-publish'
-
 
 version = '1.4'
 sourceCompatibility = 1.7
@@ -79,35 +68,6 @@ task sourceJar(type: Jar) {
 task packageJavadoc(type: Jar) {
     from javadoc
     classifier = 'javadoc'
-}
-
-gitPublish {
-    // where to publish to (repo must exist)
-    // repoUri = 'git@github.com/ajoberstar/test-repo.git'
-    // (or 'https://github.com/ajoberstar/test-repo.git', depending on authentication)
-
-    // branch will be created if it doesn't exist
-    branch = 'repository'
-
-    // generally, you don't need to touch this
-    // repoDir = file("$buildDir/somewhereelse") // defaults to $buildDir/gitPublish
-
-    // what to publish, this is a standard CopySpec
-    contents {
-        from 'src/main/java'
-        from(javadoc) {
-            into 'api'
-        }
-    }
-
-    // what to keep in the existing branch (include=keep)
-    // preserve {
-    //     include '1.0.0/**'
-    //     exclude '1.0.0/temp.txt'
-    // }
-
-    // message used when committing changes
-    commitMessage = 'Publishing version ' + version
 }
 
 
