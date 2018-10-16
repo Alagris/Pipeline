@@ -2,6 +2,7 @@ package net.alagris;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,6 +27,12 @@ public class BlueprintCover<T extends GlobalConfig> {
 		return blueprint;
 	}
 
+	public static <T extends GlobalConfig> BlueprintCover<T> load(InputStream in, Class<T> config)
+			throws JsonProcessingException, IOException {
+		BlueprintCover<T> blueprint = makeReader(config).readValue(in);
+		return afterParsing(blueprint);
+	}
+	
 	public static <T extends GlobalConfig> BlueprintCover<T> load(File f, Class<T> config)
 			throws JsonProcessingException, IOException {
 		BlueprintCover<T> blueprint = makeReader(config).readValue(f);

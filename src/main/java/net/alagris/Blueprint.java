@@ -2,6 +2,7 @@ package net.alagris;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -82,6 +83,12 @@ public class Blueprint<Cnfg extends GlobalConfig> {
 		} catch (RuntimeException e) {
 			throw new UndefinedAliasException(e);
 		}
+	}
+	
+	public static <T extends GlobalConfig> Blueprint<T> load(InputStream in, Class<T> config)
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+		Blueprint<T> blueprint = makeReader(config).readValue(in);
+		return afterParsing(blueprint);
 	}
 
 	public static <T extends GlobalConfig> Blueprint<T> load(File f, Class<T> config)

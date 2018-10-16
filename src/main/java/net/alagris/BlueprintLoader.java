@@ -2,6 +2,7 @@ package net.alagris;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +23,6 @@ public class BlueprintLoader {
 		public <Cargo> void fail(Pipe<Cargo> pipe, Class<Pipe<Cargo>> pipeClass, Exception e) {
 			e.printStackTrace();
 		}
-
 	};
 
 	private LoadFailCallback loadFailCallback = DEFAULT_LOAD_FAIL_CALLBACK;
@@ -59,6 +59,17 @@ public class BlueprintLoader {
 		this(modulesPackageForClass.getPackage());
 	}
 
+	public <T, C extends GlobalConfig> Group<T> make(InputStream in, Class<T> cargo, Class<C> config,
+			ProcessingCallback<T> processing)
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+		return make(Blueprint.load(in, config), cargo, processing);
+	}
+
+	public <T, C extends GlobalConfig> Group<T> make(InputStream in, Class<T> cargo, Class<C> config)
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+		return make(Blueprint.load(in, config), cargo);
+	}
+
 	public <T, C extends GlobalConfig> Group<T> make(String json, Class<T> cargo, Class<C> config,
 			ProcessingCallback<T> processing)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
@@ -67,7 +78,7 @@ public class BlueprintLoader {
 
 	public <T, C extends GlobalConfig> Group<T> make(String json, Class<T> cargo, Class<C> config)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(json, cargo, config, new DefaultProcessing<T>(processingExceptionCallback));
+		return make(Blueprint.load(json, config), cargo);
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(File f, Class<T> cargo, Class<C> config,
@@ -78,7 +89,7 @@ public class BlueprintLoader {
 
 	public <T, C extends GlobalConfig> Group<T> make(File f, Class<T> cargo, Class<C> config)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(f, cargo, config, new DefaultProcessing<T>(processingExceptionCallback));
+		return make(Blueprint.load(f, config), cargo);
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(Blueprint<C> blueprint, Class<T> cargo,
@@ -89,7 +100,7 @@ public class BlueprintLoader {
 	public <T, C extends GlobalConfig> Group<T> make(Blueprint<C> blueprint, Class<T> cargo) {
 		return make(blueprint, cargo, new DefaultProcessing<T>(processingExceptionCallback));
 	}
-
+	
 	private <Cargo, C extends GlobalConfig> Group<Cargo> make(ArrayList<Node> pipeline, final Class<Cargo> cargo,
 			final C globalConfig, final ProcessingCallback<Cargo> processing, final LoadFailCallback loadFailCallback) {
 

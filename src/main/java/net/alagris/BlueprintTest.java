@@ -2,6 +2,7 @@ package net.alagris;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -29,6 +30,12 @@ public class BlueprintTest<Cargo, TestUnit> {
 		return testUnits.get(id);
 	}
 
+	public static <Cargo, TestUnit> BlueprintTest<Cargo, TestUnit> load(InputStream in, Class<Cargo> cargo,
+			Class<TestUnit> unit) throws JsonProcessingException, IOException {
+		BlueprintTest<Cargo, TestUnit> blueprint = makeReader(cargo, unit).readValue(in);
+		return blueprint;
+	}
+	
 	public static <Cargo, TestUnit> BlueprintTest<Cargo, TestUnit> load(File f, Class<Cargo> cargo,
 			Class<TestUnit> unit) throws JsonProcessingException, IOException {
 		BlueprintTest<Cargo, TestUnit> blueprint = makeReader(cargo, unit).readValue(f);

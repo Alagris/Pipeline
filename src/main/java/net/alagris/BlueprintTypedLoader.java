@@ -2,6 +2,7 @@ package net.alagris;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,6 +42,11 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 	public Blueprint<Cnfg> load(String s)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return Blueprint.load(s, getConfig());
+	}
+	
+	public Group<Cargo> make(InputStream in)
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+		return make(in, getCargo(), getConfig());
 	}
 
 	public Group<Cargo> make(String json)
