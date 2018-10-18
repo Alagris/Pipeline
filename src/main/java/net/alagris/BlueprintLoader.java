@@ -113,7 +113,7 @@ public class BlueprintLoader {
 				final Map<String, Group<Cargo>> unmodAlts = Collections.unmodifiableMap(alts);
 				final String className = modulesPackage + "." + f.getName();
 				final Pipe<Cargo> pipe = buildPipe(globalConfig, cnfg, className);
-				return new Pipework<Cargo>(cnfg, unmodAlts, pipe, f.getId());
+				return new Pipework<Cargo>(unmodAlts, pipe, f.getId());
 			}
 
 			private Pipe<Cargo> buildPipe(final C globalConfig, final Map<String, Object> cnfg,

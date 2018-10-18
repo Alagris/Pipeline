@@ -44,6 +44,11 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 		return Blueprint.load(s, getConfig());
 	}
 	
+	public Blueprint<Cnfg> load(InputStream i)
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+		return Blueprint.load(i, getConfig());
+	}
+	
 	public Group<Cargo> make(InputStream in)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return make(in, getCargo(), getConfig());

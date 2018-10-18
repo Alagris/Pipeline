@@ -17,7 +17,8 @@ public class BlueprintTypedLoaderTest {
 	Group<String> gr;
 	Blueprint<GlobalCnfg> blueprint;
 
-	public BlueprintTypedLoaderTest() throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+	public BlueprintTypedLoaderTest()
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		BlueprintTypedLoader<String, GlobalCnfg> loader = new BlueprintTypedLoader<String, GlobalCnfg>(
 				BlueprintTypedLoaderTest.class, String.class, GlobalCnfg.class);
 		blueprint = loader.load(TestConstants.PIPELINE);

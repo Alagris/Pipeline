@@ -106,7 +106,7 @@ Fields annotated with ``@Config`` will be injected with values specified in JSON
 1. first will be checked ``"config": {}`` field that belongs to given pipe. If no ``"ints": `` is found inside it, then
 2. ``"global": {}`` configuration will be searched
 
-You may also specify the filed name in annotation:
+You may also specify the field name in annotation:
 
     @Config("ints")
     int[] anyNameYouLike;
@@ -120,6 +120,9 @@ Pipeline will automatically parse JSON into the following types:
 * Integer[], Byte[], Character[], Short[] ...
 * String[]
 * ArrayList\<String>
+* Pattern
+* Pattern[]
+* Any type ``T`` that has a constructor ``T(Sting)`` (with one single ``String`` parameter). You can also use ``T[]``. For example ``File``, ``Locale``,``StringBuilder``.
 
 If you wish to use ``@Config`` for any other type you should parse it in your own ``GlobalConfig`` (read below).
 

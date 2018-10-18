@@ -1,5 +1,7 @@
 package net.alagris;
 
+import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -75,6 +77,49 @@ public class Group<Cargo> implements Pipe<Cargo> {
 			}
 		}
 		return null;
+	}
+
+	/** Iterates over all {@link Pipework}s recursively (in each alternative).*/
+	public void forEachPipework(final PipeworkCallback<Cargo> callback) {
+		for (Pipework<Cargo> pipe : group) {
+			callback.doFor(pipe);
+			for (Group<Cargo> gr : pipe.getAlternatives().values()) {
+				gr.forEachPipework(callback);
+			}
+		}
+	}
+
+	/**
+	 * iterates over every {@link Pipework} and {@link Group} searching for
+	 * {@link Field}s that have {@link Config} annotation.
+	 */
+	public void forEachConfig(final ConfigCallback<Cargo> callback) {
+		forEachPipework(new PipeworkCallback<Cargo>() {
+			@Override
+			public void doFor(final Pipework<Cargo> pipework) {
+				final Pipe<Cargo> pipe = pipework.getPipe();
+				ReflectionUtils.doWithFields(pipe.getClass(), new FieldCallback() {
+					@Override
+					public void doFor(Field t) {
+						if (t.isAnnotationPresent(Config.class)) {
+							try {
+								callback.doFor(pipework, t.getName(), t.get(pipe), t.getType());
+							} catch (IllegalArgumentException | IllegalAccessException e) {
+							}
+						}
+					}
+				});
+			}
+		});
+	}
+
+	public void printConfig(final PrintStream out) {
+		forEachConfig(new ConfigCallback<Cargo>() {
+			@Override
+			public void doFor(Pipework<Cargo> pipe, String field, Object value, Class<?> fieldType) {
+				out.println(pipe.getId() + " " + field + " " + value + " (" + fieldType.getSimpleName() + ")");
+			}
+		});
 	}
 
 	/**

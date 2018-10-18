@@ -1,8 +1,11 @@
 package net.alagris;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 //Not part of public interface
 final class Classes {
@@ -37,7 +40,7 @@ final class Classes {
 		return ArrayLists.convert(parser, val);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Object parseObject(Class<?> type, Object val) {
 		if (val == null) {
 			if (type.isPrimitive()) {
@@ -64,9 +67,16 @@ final class Classes {
 				final List<?> list = parseStringArray(comp, strList);
 				return toArray(list, comp);
 			}
+		} else if (type.isEnum()) {
+			try {
+				return Enum.valueOf((Class<Enum>) type, (String) val);
+			} catch (ClassCastException e) {
+			}
 		} else {
 			try {
-				return parseString(type, (String) val);
+				Object out = parseString(type, (String) val);
+				if (out != null)
+					return out;
 			} catch (ClassCastException e) {
 			}
 		}
@@ -109,11 +119,19 @@ final class Classes {
 			return val.charAt(0);
 		} else if (type.isAssignableFrom(String.class)) {
 			return val;
+		} else if (type == Pattern.class) {
+			return Pattern.compile(val);
+		}
+		try {
+			Constructor<?> c = type.getConstructor(String.class);
+			return c.newInstance(val);
+		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException e) {
 		}
 		return null;
 	}
 
-	public static <To> Converter<String, To> parser(Class<To> type) {
+	public static <To> Converter<String, To> parser(final Class<To> type) {
 		if (type.isAssignableFrom(Boolean.class) || type == boolean.class) {
 			return new Converter<String, To>() {
 				@SuppressWarnings("unchecked")
@@ -186,6 +204,44 @@ final class Classes {
 					return (To) f;
 				}
 			};
+		} else if (type.isEnum()) {
+			return new Converter<String, To>() {
+				@SuppressWarnings({ "unchecked", "rawtypes" })
+				@Override
+				public To convert(String f) {
+					try {
+						return (To) Enum.valueOf((Class<Enum>) type, f);
+					} catch (ClassCastException e) {
+					}
+					return null;
+				}
+			};
+		} else if (type == Pattern.class) {
+			return new Converter<String, To>() {
+				@SuppressWarnings("unchecked")
+				@Override
+				public To convert(String f) {
+					return (To) Pattern.compile(f);
+				}
+			};
+		} else {
+			try {
+				final Constructor<?> c = type.getConstructor(String.class);
+				return new Converter<String, To>() {
+					@SuppressWarnings("unchecked")
+					@Override
+					public To convert(String f) {
+						try {
+							return (To) c.newInstance(f);
+						} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+								| InvocationTargetException e) {
+							e.printStackTrace();
+							return null;
+						}
+					}
+				};
+			} catch (NoSuchMethodException | SecurityException e) {
+			}
 		}
 		return null;
 	}

@@ -84,7 +84,7 @@ public class Blueprint<Cnfg extends GlobalConfig> {
 			throw new UndefinedAliasException(e);
 		}
 	}
-	
+
 	public static <T extends GlobalConfig> Blueprint<T> load(InputStream in, Class<T> config)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		Blueprint<T> blueprint = makeReader(config).readValue(in);

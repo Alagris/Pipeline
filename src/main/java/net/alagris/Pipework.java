@@ -9,20 +9,14 @@ import java.util.Map;
  */
 public class Pipework<Cargo> implements AutoCloseable {
 
-	private final Map<String, Object> config;
 	private final Map<String, Group<Cargo>> alternatives;
 	private final Pipe<Cargo> pipe;
 	private final String id;
 
-	public Pipework(Map<String, Object> config, Map<String, Group<Cargo>> alternatives, Pipe<Cargo> pipe, String id) {
-		this.config = config;
+	public Pipework(Map<String, Group<Cargo>> alternatives, Pipe<Cargo> pipe, String id) {
 		this.alternatives = alternatives;
 		this.pipe = pipe;
 		this.id = id;
-	}
-
-	public Map<String, Object> getConfig() {
-		return config;
 	}
 
 	public Map<String, Group<Cargo>> getAlternatives() {
