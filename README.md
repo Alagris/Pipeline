@@ -421,7 +421,7 @@ If you plan on applying many covers and loading multiple pipelines but all with 
         <dependency>
             <groupId>pipeline</groupId>
             <artifactId>pipeline</artifactId>
-            <version>1.4</version>
+            <version>1.5</version>
         </dependency>
     </dependencies>    
     
@@ -433,5 +433,5 @@ If you plan on applying many covers and loading multiple pipelines but all with 
     }
     
     dependencies {
-        compile group: 'pipeline', name: 'pipeline', version:'1.4'
+        compile group: 'pipeline', name: 'pipeline', version:'1.5'
     }
