@@ -12,11 +12,13 @@ public class Pipework<Cargo> implements AutoCloseable {
 	private final Map<String, Group<Cargo>> alternatives;
 	private final Pipe<Cargo> pipe;
 	private final String id;
+	private final PipeLog<Cargo> logger;
 
-	public Pipework(Map<String, Group<Cargo>> alternatives, Pipe<Cargo> pipe, String id) {
+	public Pipework(Map<String, Group<Cargo>> alternatives, Pipe<Cargo> pipe, String id, PipeLog<Cargo> logger) {
 		this.alternatives = alternatives;
 		this.pipe = pipe;
 		this.id = id;
+		this.logger = logger;
 	}
 
 	public Map<String, Group<Cargo>> getAlternatives() {
@@ -29,7 +31,7 @@ public class Pipework<Cargo> implements AutoCloseable {
 
 	public Cargo process(Cargo input) throws Exception {
 		Output<Cargo> out = pipe.process(input);
-		Logger.pipeline.log(pipe.getClass().getSimpleName() + ":\t" + out.getValue().toString());
+		logger.log(this, out);
 		Group<Cargo> alt = alternatives.get(out.getAlternative());
 		if (alt != null) {
 			return alt.process(out.getValue()).getValue();
@@ -44,6 +46,14 @@ public class Pipework<Cargo> implements AutoCloseable {
 	@Override
 	public void close() throws Exception {
 		pipe.close();
+	}
+
+	/**
+	 * If present, the title is the same as ID but if no ID was supplied, the title
+	 * becomes name of {@link Pipe}'s class
+	 */
+	public String getTitle() {
+		return getId() == null ? getPipe().getClass().getSimpleName() : getId();
 	}
 
 }

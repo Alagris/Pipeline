@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,7 +21,8 @@ public class BlueprintLoader {
 
 	public static final LoadFailCallback DEFAULT_LOAD_FAIL_CALLBACK = new LoadFailCallback() {
 		@Override
-		public <Cargo> void fail(Pipe<Cargo> pipe, Class<Pipe<Cargo>> pipeClass, Exception e) {
+		public <Cargo> void fail(Pipe<Cargo> pipe, Class<Pipe<Cargo>> pipeClass, Map<String, Object> cnfg, String id,
+				Exception e) {
 			e.printStackTrace();
 		}
 	};
@@ -60,49 +62,50 @@ public class BlueprintLoader {
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(InputStream in, Class<T> cargo, Class<C> config,
-			ProcessingCallback<T> processing)
+			ProcessingCallback<T> processing, PipeLog<T> logger)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(Blueprint.load(in, config), cargo, processing);
+		return make(Blueprint.load(in, config), cargo, processing, logger);
 	}
 
-	public <T, C extends GlobalConfig> Group<T> make(InputStream in, Class<T> cargo, Class<C> config)
+	public <T, C extends GlobalConfig> Group<T> make(InputStream in, Class<T> cargo, Class<C> config, PipeLog<T> logger)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(Blueprint.load(in, config), cargo);
+		return make(Blueprint.load(in, config), cargo, logger);
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(String json, Class<T> cargo, Class<C> config,
-			ProcessingCallback<T> processing)
+			ProcessingCallback<T> processing, PipeLog<T> logger)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(Blueprint.load(json, config), cargo, processing);
+		return make(Blueprint.load(json, config), cargo, processing, logger);
 	}
 
-	public <T, C extends GlobalConfig> Group<T> make(String json, Class<T> cargo, Class<C> config)
+	public <T, C extends GlobalConfig> Group<T> make(String json, Class<T> cargo, Class<C> config, PipeLog<T> logger)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(Blueprint.load(json, config), cargo);
+		return make(Blueprint.load(json, config), cargo, logger);
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(File f, Class<T> cargo, Class<C> config,
-			ProcessingCallback<T> processing)
+			ProcessingCallback<T> processing, PipeLog<T> logger)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(Blueprint.load(f, config), cargo, processing);
+		return make(Blueprint.load(f, config), cargo, processing, logger);
 	}
 
-	public <T, C extends GlobalConfig> Group<T> make(File f, Class<T> cargo, Class<C> config)
+	public <T, C extends GlobalConfig> Group<T> make(File f, Class<T> cargo, Class<C> config, PipeLog<T> logger)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(Blueprint.load(f, config), cargo);
+		return make(Blueprint.load(f, config), cargo, logger);
 	}
 
-	public <T, C extends GlobalConfig> Group<T> make(Blueprint<C> blueprint, Class<T> cargo,
-			ProcessingCallback<T> processing) {
-		return make(blueprint.getPipeline(), cargo, blueprint.getGlobal(), processing, loadFailCallback);
+	public <Cargo, C extends GlobalConfig> Group<Cargo> make(Blueprint<C> blueprint, Class<Cargo> cargo,
+			ProcessingCallback<Cargo> processing, PipeLog<Cargo> logger) {
+		return make(blueprint.getPipeline(), cargo, blueprint.getGlobal(), processing, loadFailCallback, logger);
 	}
 
-	public <T, C extends GlobalConfig> Group<T> make(Blueprint<C> blueprint, Class<T> cargo) {
-		return make(blueprint, cargo, new DefaultProcessing<T>(processingExceptionCallback));
+	public <T, C extends GlobalConfig> Group<T> make(Blueprint<C> blueprint, Class<T> cargo, PipeLog<T> logger) {
+		return make(blueprint, cargo, new DefaultProcessing<T>(processingExceptionCallback), logger);
 	}
-	
+
 	private <Cargo, C extends GlobalConfig> Group<Cargo> make(ArrayList<Node> pipeline, final Class<Cargo> cargo,
-			final C globalConfig, final ProcessingCallback<Cargo> processing, final LoadFailCallback loadFailCallback) {
+			final C globalConfig, final ProcessingCallback<Cargo> processing, final LoadFailCallback loadFailCallback,
+			final PipeLog<Cargo> logger) {
 
 		final ArrayList<Pipework<Cargo>> gr = ArrayLists.convert(new Converter<Node, Pipework<Cargo>>() {
 
@@ -112,24 +115,26 @@ public class BlueprintLoader {
 				final HashMap<String, Group<Cargo>> alts = makeAlternatives(cargo, globalConfig, f);
 				final Map<String, Group<Cargo>> unmodAlts = Collections.unmodifiableMap(alts);
 				final String className = modulesPackage + "." + f.getName();
-				final Pipe<Cargo> pipe = buildPipe(globalConfig, cnfg, className);
-				return new Pipework<Cargo>(unmodAlts, pipe, f.getId());
+				final Pipe<Cargo> pipe = buildPipe(globalConfig, cnfg, className, f.getId());
+				return new Pipework<Cargo>(unmodAlts, pipe, f.getId(), logger);
 			}
 
-			private Pipe<Cargo> buildPipe(final C globalConfig, final Map<String, Object> cnfg,
-					final String className) {
+			private Pipe<Cargo> buildPipe(final C globalConfig, final Map<String, Object> cnfg, final String className,
+					String id) {
 				try {
 					@SuppressWarnings("unchecked")
 					final Class<Pipe<Cargo>> pipeClass = (Class<Pipe<Cargo>>) Class.forName(className);
-					final Pipe<Cargo> pipe = pipeClass.newInstance();
+					final Pipe<Cargo> pipe = pipeClass.getDeclaredConstructor().newInstance();
 					injectFields(globalConfig, cnfg, pipe, pipeClass);
 					try {
 						pipe.onLoad();
 					} catch (Exception e) {
-						loadFailCallback.fail(pipe, pipeClass, e);
+						loadFailCallback.fail(pipe, pipeClass, cnfg, id, e);
 					}
 					return pipe;
-				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+						| IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+						| SecurityException e) {
 					throw new RuntimeException(e);
 				}
 
@@ -140,7 +145,7 @@ public class BlueprintLoader {
 				return HashMaps.convert(new Converter<ArrayList<Node>, Group<Cargo>>() {
 					@Override
 					public Group<Cargo> convert(ArrayList<Node> f) {
-						return make(f, cargo, globalConfig, processing, loadFailCallback);
+						return make(f, cargo, globalConfig, processing, loadFailCallback, logger);
 					}
 				}, f.getAlternatives());
 			}
@@ -211,10 +216,10 @@ public class BlueprintLoader {
 	}
 
 	public <Cargo, TestUnit, Verifier extends PipeTestVerifier<Cargo, TestUnit>, Cnfg extends GlobalConfig> GroupTest<Cargo, TestUnit> makeTest(
-			Verifier verifier, Class<Cargo> cargo, Blueprint<Cnfg> blueprint) {
+			Verifier verifier, Class<Cargo> cargo, Blueprint<Cnfg> blueprint, PipeLog<Cargo> logger) {
 		TestProcessingCallback<Cargo, TestUnit, PipeTestVerifier<Cargo, TestUnit>> processing = new TestProcessingCallback<Cargo, TestUnit, PipeTestVerifier<Cargo, TestUnit>>(
 				verifier, processingExceptionCallback);
-		Group<Cargo> test = make(blueprint, cargo, processing);
+		Group<Cargo> test = make(blueprint, cargo, processing, logger);
 		return new GroupTest<>(test, processing);
 	}
 

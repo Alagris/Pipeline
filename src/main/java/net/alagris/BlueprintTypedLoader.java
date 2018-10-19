@@ -16,6 +16,14 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 	private final Class<Cargo> cargo;
 	private final Class<Cnfg> config;
 
+	private PipeLog<Cargo> logger = new PipeLog<Cargo>() {
+
+		@Override
+		public void log(Pipework<Cargo> pipework, Output<Cargo> out) {
+			System.out.println(pipework.getTitle() + "\t\t" + out.getValue().toString());
+		}
+	};
+
 	public BlueprintTypedLoader(String modulesPackage, Class<Cargo> cargo, Class<Cnfg> config) {
 		super(modulesPackage);
 		this.cargo = cargo;
@@ -43,29 +51,29 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return Blueprint.load(s, getConfig());
 	}
-	
+
 	public Blueprint<Cnfg> load(InputStream i)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return Blueprint.load(i, getConfig());
 	}
-	
+
 	public Group<Cargo> make(InputStream in)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(in, getCargo(), getConfig());
+		return make(in, getCargo(), getConfig(), logger);
 	}
 
 	public Group<Cargo> make(String json)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(json, getCargo(), getConfig());
+		return make(json, getCargo(), getConfig(), logger);
 	}
 
 	public Group<Cargo> make(File f)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(f, getCargo(), getConfig());
+		return make(f, getCargo(), getConfig(), logger);
 	}
 
 	public Group<Cargo> make(Blueprint<Cnfg> blueprint) {
-		return make(blueprint, getCargo());
+		return make(blueprint, getCargo(), logger);
 	}
 
 	public <UnitTest> BlueprintTest<Cargo, UnitTest> loadTest(File testFile, Class<UnitTest> unit)
@@ -78,13 +86,11 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 		return BlueprintTest.load(testJson, cargo, unit);
 	}
 
-
 	public <UnitTest> GroupTest<Cargo, UnitTest> makeTest(File blueprintFile,
 			PipeTestVerifier<Cargo, UnitTest> verifier, Class<UnitTest> unit)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
 		return makeTest(load(blueprintFile), verifier);
 	}
-
 
 	public <UnitTest> GroupTest<Cargo, UnitTest> makeTest(String blueprintJson,
 			PipeTestVerifier<Cargo, UnitTest> verifier, Class<UnitTest> unit)
@@ -97,12 +103,10 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 		return makeTest(blueprint, verifier);
 	}
 
-
 	public <UnitTest> GroupTest<Cargo, UnitTest> makeTest(Blueprint<Cnfg> blueprint,
 			PipeTestVerifier<Cargo, UnitTest> verifier) {
-		return makeTest(verifier, cargo, blueprint);
+		return makeTest(verifier, cargo, blueprint, logger);
 	}
-
 
 	public BlueprintCover<Cnfg> makeCover(String... args)
 			throws ParseException, DuplicateIdException, InstantiationException, IllegalAccessException {
@@ -139,6 +143,14 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 
 	public Class<Cnfg> getConfig() {
 		return config;
+	}
+
+	public PipeLog<Cargo> getLogger() {
+		return logger;
+	}
+
+	public void setLogger(PipeLog<Cargo> logger) {
+		this.logger = logger;
 	}
 
 }

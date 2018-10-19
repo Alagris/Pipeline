@@ -1,6 +1,6 @@
 package net.alagris;
 
-public abstract class OptionalPipe<T> implements Pipe<T> {
+public abstract class OptionalPipe<Cargo> implements Pipe<Cargo> {
 
 	@Config
 	boolean enabled;
@@ -22,12 +22,12 @@ public abstract class OptionalPipe<T> implements Pipe<T> {
 	public abstract void onLoadOptional() throws Exception;
 
 	@Override
-	public final Output<T> process(T input) {
+	public final Output<Cargo> process(Cargo input) {
 		return isEnabled() ? processOptional(input) : Output.none(input);
 	}
 
 	/** This method is called if and only if this {@link OptionalPipe} is enabled */
-	protected abstract Output<T> processOptional(T input);
+	protected abstract Output<Cargo> processOptional(Cargo input);
 
 	public boolean isEnabled() {
 		return enabled;

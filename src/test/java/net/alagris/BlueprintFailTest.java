@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -35,7 +36,8 @@ public class BlueprintFailTest {
 		final ArrayList<Class<?>> loadFails = new ArrayList<>();
 		loader.setLoadFailCallback(new LoadFailCallback() {
 			@Override
-			public <Cargo> void fail(Pipe<Cargo> pipe, Class<Pipe<Cargo>> pipeClass, Exception e) {
+			public <Cargo> void fail(Pipe<Cargo> pipe, Class<Pipe<Cargo>> pipeClass, Map<String, Object> cnfg,
+					String id, Exception e) {
 				loadFails.add(pipeClass);
 			}
 		});

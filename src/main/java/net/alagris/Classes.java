@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -73,11 +74,24 @@ final class Classes {
 			} catch (ClassCastException e) {
 			}
 		} else {
-			try {
+			if (val.getClass() == String.class) {
 				Object out = parseString(type, (String) val);
 				if (out != null)
 					return out;
-			} catch (ClassCastException e) {
+			} else if (val.getClass() == ArrayList.class) {
+				try {
+					Constructor<?> c = type.getConstructor(ArrayList.class);
+					return c.newInstance(val);
+				} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+						| IllegalArgumentException | InvocationTargetException e) {
+				}
+			} else if (val.getClass() == HashMap.class) {
+				try {
+					Constructor<?> c = type.getConstructor(HashMap.class);
+					return c.newInstance(val);
+				} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+						| IllegalArgumentException | InvocationTargetException e) {
+				}
 			}
 		}
 		throw new UnsupportedOperationException(

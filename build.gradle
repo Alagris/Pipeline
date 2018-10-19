@@ -72,7 +72,7 @@ task packageJavadoc(type: Jar) {
 
 
 dependencies {
-	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
+	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.6'
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 }
