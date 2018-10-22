@@ -48,7 +48,7 @@ public class BlueprintCover<T extends GlobalConfig> {
 	private static <T extends GlobalConfig> ObjectReader makeReader(Class<T> config) {
 		ObjectMapper mapper = new ObjectMapper();
 		JavaType type = mapper.getTypeFactory().constructParametricType(BlueprintCover.class, config);
-		return mapper.reader(type);
+		return mapper.readerFor(type);
 	}
 
 	@Override
