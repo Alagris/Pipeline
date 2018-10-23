@@ -13,12 +13,17 @@ public class Pipework<Cargo> implements AutoCloseable {
 	private final Pipe<Cargo> pipe;
 	private final String id;
 	private final PipeLog<Cargo> logger;
+	private final ResultReceiver<Cargo> resultReceiver;
+	private final boolean runAllAlternatives;
 
-	public Pipework(Map<String, Group<Cargo>> alternatives, Pipe<Cargo> pipe, String id, PipeLog<Cargo> logger) {
+	public Pipework(Map<String, Group<Cargo>> alternatives, Pipe<Cargo> pipe, String id, PipeLog<Cargo> logger,
+			ResultReceiver<Cargo> resultReceiver, boolean runAllAlternatives) {
 		this.alternatives = alternatives;
 		this.pipe = pipe;
 		this.id = id;
 		this.logger = logger;
+		this.resultReceiver = resultReceiver;
+		this.runAllAlternatives = runAllAlternatives;
 	}
 
 	public Map<String, Group<Cargo>> getAlternatives() {
@@ -32,9 +37,20 @@ public class Pipework<Cargo> implements AutoCloseable {
 	public Cargo process(Cargo input) throws Exception {
 		Output<Cargo> out = pipe.process(input);
 		logger.log(this, out);
-		Group<Cargo> alt = alternatives.get(out.getAlternative());
-		if (alt != null) {
-			return alt.process(out.getValue()).getValue();
+		if (out.getResults() != null) {
+			for (Result<Cargo> result : out.getResults()) {
+				resultReceiver.receive(result);
+			}
+		}
+		if (runAllAlternatives) {
+			for (Group<Cargo> alt : alternatives.values()) {
+				alt.process(out.getValue());
+			}
+		} else {
+			Group<Cargo> alt = alternatives.get(out.getAlternative());
+			if (alt != null) {
+				return alt.process(out.getValue()).getValue();
+			}
 		}
 		return out.getValue();
 	}

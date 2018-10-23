@@ -15,6 +15,13 @@ public class Node implements Identifiable {
 	private HashMap<String, Object> config = new HashMap<>();
 	private HashMap<String, ArrayList<Node>> alternatives = new HashMap<>();
 	private String[] aliases;
+	/**
+	 * If true, then all alternatives will be executed one by one, all feed the same
+	 * input and the output of each alternative is discarded. This allows for
+	 * branching pipeline in a way that produces multiple end points. While
+	 * alternative outputs are discarded, you can still emit results.
+	 */
+	private boolean runAllAlternatives = false;
 
 	public String getName() {
 		return name;
@@ -75,6 +82,14 @@ public class Node implements Identifiable {
 				Logger.jsonWarnings.log("Tried to set field (" + field + ") not allowed by alias! Pipe: " + getName());
 			}
 		}
+	}
+
+	public boolean isRunAllAlternatives() {
+		return runAllAlternatives;
+	}
+
+	public void setRunAllAlternatives(boolean runAllAlternatives) {
+		this.runAllAlternatives = runAllAlternatives;
 	}
 
 }

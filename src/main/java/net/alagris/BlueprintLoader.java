@@ -61,51 +61,61 @@ public class BlueprintLoader {
 		this(modulesPackageForClass.getPackage());
 	}
 
-	public <T, C extends GlobalConfig> Group<T> make(InputStream in, Class<T> cargo, Class<C> config,
-			ProcessingCallback<T> processing, PipeLog<T> logger)
-			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(Blueprint.load(in, config), cargo, processing, logger);
+	/** Contains set of callback functions that operate on Cargo generic type */
+	public static interface Callbacks<Cargo> {
+		public ResultReceiver<Cargo> getResultReceiver();
+
+		public PipeLog<Cargo> getLogger();
 	}
 
-	public <T, C extends GlobalConfig> Group<T> make(InputStream in, Class<T> cargo, Class<C> config, PipeLog<T> logger)
+	public <T, C extends GlobalConfig> Group<T> make(InputStream in, Class<T> cargo, Class<C> config,
+			ProcessingCallback<T> processing, Callbacks<T> callbacks)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(Blueprint.load(in, config), cargo, logger);
+		return make(Blueprint.load(in, config), cargo, processing, callbacks);
+	}
+
+	public <T, C extends GlobalConfig> Group<T> make(InputStream in, Class<T> cargo, Class<C> config,
+			Callbacks<T> callbacks)
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+		return make(Blueprint.load(in, config), cargo, callbacks);
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(String json, Class<T> cargo, Class<C> config,
-			ProcessingCallback<T> processing, PipeLog<T> logger)
+			ProcessingCallback<T> processing, Callbacks<T> callbacks)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(Blueprint.load(json, config), cargo, processing, logger);
+		return make(Blueprint.load(json, config), cargo, processing, callbacks);
 	}
 
-	public <T, C extends GlobalConfig> Group<T> make(String json, Class<T> cargo, Class<C> config, PipeLog<T> logger)
+	public <T, C extends GlobalConfig> Group<T> make(String json, Class<T> cargo, Class<C> config,
+			Callbacks<T> callbacks)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(Blueprint.load(json, config), cargo, logger);
+		return make(Blueprint.load(json, config), cargo, callbacks);
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(File f, Class<T> cargo, Class<C> config,
-			ProcessingCallback<T> processing, PipeLog<T> logger)
+			ProcessingCallback<T> processing, Callbacks<T> callbacks)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(Blueprint.load(f, config), cargo, processing, logger);
+		return make(Blueprint.load(f, config), cargo, processing, callbacks);
 	}
 
-	public <T, C extends GlobalConfig> Group<T> make(File f, Class<T> cargo, Class<C> config, PipeLog<T> logger)
+	public <T, C extends GlobalConfig> Group<T> make(File f, Class<T> cargo, Class<C> config, Callbacks<T> callbacks)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(Blueprint.load(f, config), cargo, logger);
+		return make(Blueprint.load(f, config), cargo, callbacks);
 	}
 
 	public <Cargo, C extends GlobalConfig> Group<Cargo> make(Blueprint<C> blueprint, Class<Cargo> cargo,
-			ProcessingCallback<Cargo> processing, PipeLog<Cargo> logger) {
-		return make(blueprint.getPipeline(), cargo, blueprint.getGlobal(), processing, loadFailCallback, logger);
+			ProcessingCallback<Cargo> processing, Callbacks<Cargo> callbacks) {
+		return make(blueprint.getPipeline(), cargo, blueprint.getGlobal(), processing, loadFailCallback,
+				callbacks.getLogger(), callbacks.getResultReceiver());
 	}
 
-	public <T, C extends GlobalConfig> Group<T> make(Blueprint<C> blueprint, Class<T> cargo, PipeLog<T> logger) {
-		return make(blueprint, cargo, new DefaultProcessing<T>(processingExceptionCallback), logger);
+	public <T, C extends GlobalConfig> Group<T> make(Blueprint<C> blueprint, Class<T> cargo, Callbacks<T> callbacks) {
+		return make(blueprint, cargo, new DefaultProcessing<T>(processingExceptionCallback), callbacks);
 	}
 
 	private <Cargo, C extends GlobalConfig> Group<Cargo> make(ArrayList<Node> pipeline, final Class<Cargo> cargo,
 			final C globalConfig, final ProcessingCallback<Cargo> processing, final LoadFailCallback loadFailCallback,
-			final PipeLog<Cargo> logger) {
+			final PipeLog<Cargo> logger, final ResultReceiver<Cargo> resultReceiver) {
 
 		final ArrayList<Pipework<Cargo>> gr = ArrayLists.convert(new Converter<Node, Pipework<Cargo>>() {
 
@@ -116,7 +126,8 @@ public class BlueprintLoader {
 				final Map<String, Group<Cargo>> unmodAlts = Collections.unmodifiableMap(alts);
 				final String className = modulesPackage + "." + f.getName();
 				final Pipe<Cargo> pipe = buildPipe(globalConfig, cnfg, className, f.getId());
-				return new Pipework<Cargo>(unmodAlts, pipe, f.getId(), logger);
+				return new Pipework<Cargo>(unmodAlts, pipe, f.getId(), logger, resultReceiver,
+						f.isRunAllAlternatives());
 			}
 
 			private Pipe<Cargo> buildPipe(final C globalConfig, final Map<String, Object> cnfg, final String className,
@@ -145,7 +156,7 @@ public class BlueprintLoader {
 				return HashMaps.convert(new Converter<ArrayList<Node>, Group<Cargo>>() {
 					@Override
 					public Group<Cargo> convert(ArrayList<Node> f) {
-						return make(f, cargo, globalConfig, processing, loadFailCallback, logger);
+						return make(f, cargo, globalConfig, processing, loadFailCallback, logger, resultReceiver);
 					}
 				}, f.getAlternatives());
 			}
@@ -216,10 +227,10 @@ public class BlueprintLoader {
 	}
 
 	public <Cargo, TestUnit, Verifier extends PipeTestVerifier<Cargo, TestUnit>, Cnfg extends GlobalConfig> GroupTest<Cargo, TestUnit> makeTest(
-			Verifier verifier, Class<Cargo> cargo, Blueprint<Cnfg> blueprint, PipeLog<Cargo> logger) {
+			Verifier verifier, Class<Cargo> cargo, Blueprint<Cnfg> blueprint, Callbacks<Cargo> callbacks) {
 		TestProcessingCallback<Cargo, TestUnit, PipeTestVerifier<Cargo, TestUnit>> processing = new TestProcessingCallback<Cargo, TestUnit, PipeTestVerifier<Cargo, TestUnit>>(
 				verifier, processingExceptionCallback);
-		Group<Cargo> test = make(blueprint, cargo, processing, logger);
+		Group<Cargo> test = make(blueprint, cargo, processing, callbacks);
 		return new GroupTest<>(test, processing);
 	}
 

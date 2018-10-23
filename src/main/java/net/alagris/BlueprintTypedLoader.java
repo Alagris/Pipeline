@@ -11,7 +11,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
  * Provides BlueprintLoader with automatically filled type parameters. Just a
  * convenience class.
  */
-public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends BlueprintLoader {
+public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends BlueprintLoader
+		implements BlueprintLoader.Callbacks<Cargo> {
 
 	private final Class<Cargo> cargo;
 	private final Class<Cnfg> config;
@@ -21,6 +22,12 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 		@Override
 		public void log(Pipework<Cargo> pipework, Output<Cargo> out) {
 			System.out.println(pipework.getTitle() + "\t\t" + out.getValue().toString());
+		}
+	};
+	private ResultReceiver<Cargo> resultReceiver = new ResultReceiver<Cargo>() {
+		@Override
+		public void receive(Result<Cargo> result) {
+			System.err.println("Missed result! " + result.toString());
 		}
 	};
 
@@ -59,21 +66,21 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 
 	public Group<Cargo> make(InputStream in)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(in, getCargo(), getConfig(), logger);
+		return make(in, getCargo(), getConfig(), this);
 	}
 
 	public Group<Cargo> make(String json)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(json, getCargo(), getConfig(), logger);
+		return make(json, getCargo(), getConfig(), this);
 	}
 
 	public Group<Cargo> make(File f)
 			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
-		return make(f, getCargo(), getConfig(), logger);
+		return make(f, getCargo(), getConfig(), this);
 	}
 
 	public Group<Cargo> make(Blueprint<Cnfg> blueprint) {
-		return make(blueprint, getCargo(), logger);
+		return make(blueprint, getCargo(), this);
 	}
 
 	public <UnitTest> BlueprintTest<Cargo, UnitTest> loadTest(File testFile, Class<UnitTest> unit)
@@ -105,7 +112,7 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 
 	public <UnitTest> GroupTest<Cargo, UnitTest> makeTest(Blueprint<Cnfg> blueprint,
 			PipeTestVerifier<Cargo, UnitTest> verifier) {
-		return makeTest(verifier, cargo, blueprint, logger);
+		return makeTest(verifier, cargo, blueprint, this);
 	}
 
 	public BlueprintCover<Cnfg> makeCover(String... args)
@@ -145,12 +152,22 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 		return config;
 	}
 
+	@Override
 	public PipeLog<Cargo> getLogger() {
 		return logger;
 	}
 
 	public void setLogger(PipeLog<Cargo> logger) {
 		this.logger = logger;
+	}
+
+	@Override
+	public ResultReceiver<Cargo> getResultReceiver() {
+		return resultReceiver;
+	}
+
+	public void setResultReceiver(ResultReceiver<Cargo> resultReceiver) {
+		this.resultReceiver = resultReceiver;
 	}
 
 }

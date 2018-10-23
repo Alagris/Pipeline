@@ -1,0 +1,75 @@
+{
+	"global": {
+		"enabled": "true"
+	},
+	"pipeline": [
+		{
+			"name": "Branching",
+			"id": "Branching-id",
+			"runAllAlternatives": "true",
+			"config": {
+				"left": "1",
+				"right": "2"
+			},
+			"alternatives": {
+				"upperFirst": [
+					{
+						"name": "Lowercase",
+						"id": "Lowercase-id"
+					},
+					{
+						"name": "UppercaseFirst",
+						"id": "Truecaser-id"
+					},
+                    {
+                        "name": "Emitter",
+                        "config": {
+                            "code": "upperFirst",
+                            "description": "test1"
+                        }
+                    }
+				],
+				"upperAll": [
+					{
+						"name": "Uppercase"
+					},
+                    {
+                        "name": "Emitter",
+                        "config": {
+                            "code": "upperAll",
+                            "description": "test2"
+                        }
+                    }
+				],
+                "trim": [
+                    {
+                        "name": "Trim"
+                    },
+                    {
+                        "name": "Emitter",
+                        "config": {
+                            "code": "trim",
+                            "description": "test3"
+                        }
+                    }
+                ],
+                "prefix": [
+                    {
+                        "name": "Preprocessor",
+                        "id": "Preprocessor-id",
+                        "config": {
+                            "suffix": "-t"
+                        }
+                    },
+                    {
+                        "name": "Emitter",
+                        "config": {
+                            "code": "prefix",
+                            "description": "test4"
+                        }
+                    }
+                ]
+			}
+		}
+	]
+}

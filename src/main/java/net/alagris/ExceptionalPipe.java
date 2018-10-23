@@ -1,21 +1,23 @@
 package net.alagris;
 
 /**
- * {@link OptionalPipe}s automatically manage <code>enabled</code>
- * {@link Config} flag for you and will set themselves to disabled if onLoad
- * throws any exception.
+ * {@link ExceptionalPipe} is very similar to {@link OptionalPipe} with the only
+ * difference that it doesn't set <code>enabled</code> to false on fail but
+ * rather uses internal flag to block.
  */
-public abstract class OptionalPipe<Cargo> implements Pipe<Cargo> {
+public abstract class ExceptionalPipe<Cargo> implements Pipe<Cargo> {
 
 	@Config
 	boolean enabled;
+
+	private boolean noException = true;
 
 	@Override
 	public final void onLoad() throws Exception {
 		try {
 			onLoadOptional();
 		} catch (Exception e) {
-			enabled = false;
+			noException = false;
 			throw e;
 		}
 	}
@@ -28,10 +30,12 @@ public abstract class OptionalPipe<Cargo> implements Pipe<Cargo> {
 
 	@Override
 	public final Output<Cargo> process(Cargo input) {
-		return isEnabled() ? processOptional(input) : Output.none(input);
+		return isEnabled() && isNoException() ? processOptional(input) : Output.none(input);
 	}
 
-	/** This method is called if and only if this {@link OptionalPipe} is enabled */
+	/**
+	 * This method is called if and only if this {@link ExceptionalPipe} is enabled
+	 */
 	protected abstract Output<Cargo> processOptional(Cargo input);
 
 	public boolean isEnabled() {
@@ -40,6 +44,10 @@ public abstract class OptionalPipe<Cargo> implements Pipe<Cargo> {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public boolean isNoException() {
+		return noException;
 	}
 
 }

@@ -51,7 +51,7 @@ public class BlueprintTest<Cargo, TestUnit> {
 	private static <Cargo, TestUnit> ObjectReader makeReader(Class<Cargo> cargo, Class<TestUnit> unit) {
 		ObjectMapper mapper = new ObjectMapper();
 		JavaType type = mapper.getTypeFactory().constructParametricType(BlueprintTest.class, cargo, unit);
-		return mapper.reader(type);
+		return mapper.readerFor(type);
 	}
 
 	public Cargo getInput() {

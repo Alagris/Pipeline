@@ -11,6 +11,7 @@ class TestConstants {
 	static final File TEST = new File("src/test/res/test.json");
 	static final File TEST2 = new File("src/test/res/test2.json");
 	static final File TEST3 = new File("src/test/res/test3.json");
+	static final File EMITTING_PIPELINE = new File("src/test/res/emitting_pipeline.json");
 
 	static final class Pair {
 		String intput, output;

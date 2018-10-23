@@ -1,19 +1,34 @@
 package net.alagris;
 
+import java.util.List;
+
 public class Output<Cargo> {
 	private final Cargo value;
 	private final String alternative;
+	private final List<Result<Cargo>> results;
 
-	public static <T> Output<T> left(T value) {
-		return new Output<T>(value, "left");
+	public static <Cargo> Output<Cargo> left(Cargo value) {
+		return left(value, null);
 	}
 
-	public static <T> Output<T> right(T value) {
-		return new Output<T>(value, "right");
+	public static <Cargo> Output<Cargo> right(Cargo value) {
+		return right(value, null);
 	}
 
-	public static <T> Output<T> none(T value) {
-		return new Output<T>(value);
+	public static <Cargo> Output<Cargo> none(Cargo value) {
+		return none(value, null);
+	}
+
+	public static <Cargo> Output<Cargo> left(Cargo value, List<Result<Cargo>> resultsToEmit) {
+		return new Output<Cargo>(value, "left", resultsToEmit);
+	}
+
+	public static <Cargo> Output<Cargo> right(Cargo value, List<Result<Cargo>> resultsToEmit) {
+		return new Output<Cargo>(value, "right", resultsToEmit);
+	}
+
+	public static <Cargo> Output<Cargo> none(Cargo value, List<Result<Cargo>> resultsToEmit) {
+		return new Output<Cargo>(value, null, resultsToEmit);
 	}
 
 	public Output(Cargo value) {
@@ -21,8 +36,13 @@ public class Output<Cargo> {
 	}
 
 	public Output(Cargo value, String alternative) {
+		this(value, alternative, null);
+	}
+
+	public Output(Cargo value, String alternative, List<Result<Cargo>> resultsToEmit) {
 		this.value = value;
 		this.alternative = alternative;
+		this.results = resultsToEmit;
 	}
 
 	public Cargo getValue() {
@@ -31,6 +51,11 @@ public class Output<Cargo> {
 
 	public String getAlternative() {
 		return alternative;
+	}
+
+	/** Never returns null (all nulls are converted into empty list) */
+	public List<Result<Cargo>> getResults() {
+		return results;
 	}
 
 }
