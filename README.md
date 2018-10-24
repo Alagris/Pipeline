@@ -389,6 +389,105 @@ json:
     
 You can very easily use this from JUnit (although it works separate just fine).
 
+
+### Emitters
+
+There exists an additional way of returning output from pipeline. The standard way allows you to receive only single output:
+
+    Group<String> group = loader.make(blueprint);
+    Cargo output = group.process(intput).getValue()
+    
+But you could use emitter and receiver to get multiple results from at any point in pipeline. The emitter pipe works like this:
+
+
+    public class Emitter<Cargo> implements Pipe<Cargo> {
+    
+       
+        @Override
+        public final Output<Cargo> process(Cargo input) throws Exception {
+            //compute output that you would like to emit
+            Cargo outputToEmit = ...;
+            
+            //compute output that you would like to return back 
+            //to pipeline for further processing (the standard way)
+            Cargo outputToForward = ...;
+            
+            //pack the output into Result with code and description
+            Result<Cargo> resultToEmit = new Result<Cargo>(outputToEmit, description, code)
+            
+            //you might emit multiple results but in this case we have only one
+            List<Result<Cargo>> resultsToEmit = Arrays.asList(resultToEmit);
+            
+            //return outputToForward and emit resultsToEmit
+            return Output.none(outputToForward, resultToEmit);
+        }
+    
+    }
+
+then you can catch all emitted results like this:
+
+    ResultReceiver<String> receiver = new ResultReceiver<String>() {
+
+        @Override
+        public void receive(Result<String> result) {
+            //do something with result
+        }
+    };
+
+    Blueprint<GlobalCnfg> blueprint = loader.load(...);
+    Group<String> group = loader.make(blueprint);
+    group.process(input, receiver);
+
+every ``Result`` carries a ``code`` which is meant to help you identify it. It's completely up to you what those codes are. Additionally there is also ``description`` which is meant to be human readable extra information.
+
+For your convenience there exists a basic implementation of ``Pipe`` that serves purely as emitter. It's called ``EndpointPipe<Cargo>``. You could use it like this:
+
+    //create new class that extends EndpointPipe and put it
+    //in the same package as the rest of your pipes 
+    //(dependency injection looks for classes
+    // only in that one package that you specify)
+    public class Emitter extends EndpointPipe<String>{}
+	
+Include it in JSON:
+
+    {
+        "name": "Emitter",
+        "config": {
+            "code": "your code in form of String",
+            "description": "this Emitter will emit whatever comes to it"
+        }
+    }
+
+### No-common-end branching
+
+Originally everytime you choose some alternative, the data flows like this:
+
+               --- alt1 ---
+             /              \    
+    ---branch                 ---- common end           
+             \              /              
+               --- alt2 ---
+               
+you can either choose alternative ``alt1`` or ``alt2`` but you cannot choose both at once. And you always end up at ``common end`` no matter what.
+
+You may however, use a different type of branching:
+
+               --- alt1 --- results discarded
+             /                  
+    ---branch --- pipeline continues
+             \                            
+               --- alt2 --- results discarded
+               
+In this scenario you will execute all branches but their outputs will be discarded and then pipeline will continue as if nothing ever happened. The only way to get anything back from such branches is to emit results (instead of forwarding them to the next pipe, because at some point there is no next pipe)
+
+Here is an example of such flow:
+
+           --- +1 = 2 --- 2 (discarded)
+         /                  
+    --- 1 --- +2 = 3 --- +4 = 7 --- outputs 7
+         \                            
+           --- -1 = 0 --- 0 (discarded)
+    
 ### Convenience and extras
 
 If you plan on applying many covers and loading multiple pipelines but all with the same generic types you might choose to use ``BlueprintTypedLoader``. Example:
@@ -421,7 +520,7 @@ If you plan on applying many covers and loading multiple pipelines but all with 
         <dependency>
             <groupId>pipeline</groupId>
             <artifactId>pipeline</artifactId>
-            <version>1.5</version>
+            <version>1.6</version>
         </dependency>
     </dependencies>    
     
@@ -433,5 +532,5 @@ If you plan on applying many covers and loading multiple pipelines but all with 
     }
     
     dependencies {
-        compile group: 'pipeline', name: 'pipeline', version:'1.5'
+        compile group: 'pipeline', name: 'pipeline', version:'1.6'
     }

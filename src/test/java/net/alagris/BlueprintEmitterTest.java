@@ -2,19 +2,15 @@ package net.alagris;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 import org.junit.Test;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class BlueprintEmitterTest {
 
 	BlueprintTypedLoader<String, GlobalCnfg> loader;
 
-	public BlueprintEmitterTest()
-			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+	public BlueprintEmitterTest() {
 		loader = new BlueprintTypedLoader<String, GlobalCnfg>(BlueprintEmitterTest.class, String.class,
 				GlobalCnfg.class);
 

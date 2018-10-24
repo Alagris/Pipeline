@@ -24,7 +24,7 @@ public class EndpointPipe<Cargo> implements Pipe<Cargo> {
 		return Output.none(input, Arrays.asList(new Result<Cargo>(emit(input), description, code)));
 	}
 
-	public Cargo emit(Cargo input) throws Exception {
+	public Cargo emit(Cargo input) {
 		return input;
 	}
 
