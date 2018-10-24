@@ -22,17 +22,31 @@ public class GroupTest<Cargo, TestUnit> implements AutoCloseable {
 
 	public void runWith(String testJson, Class<Cargo> cargo, Class<TestUnit> unit)
 			throws JsonProcessingException, IOException {
+		runWith(BlueprintTest.load(testJson, cargo, unit), new DefaultResultReceiver<Cargo>());
+	}
+
+	public void runWith(String testJson, Class<Cargo> cargo, Class<TestUnit> unit, ResultReceiver<Cargo> resultReceiver)
+			throws JsonProcessingException, IOException {
 		runWith(BlueprintTest.load(testJson, cargo, unit));
 	}
 
 	public void runWith(File testFile, Class<Cargo> cargo, Class<TestUnit> unit)
 			throws JsonProcessingException, IOException {
+		runWith(BlueprintTest.load(testFile, cargo, unit), new DefaultResultReceiver<Cargo>());
+	}
+
+	public void runWith(File testFile, Class<Cargo> cargo, Class<TestUnit> unit, ResultReceiver<Cargo> resultReceiver)
+			throws JsonProcessingException, IOException {
 		runWith(BlueprintTest.load(testFile, cargo, unit));
 	}
 
 	public void runWith(BlueprintTest<Cargo, TestUnit> tests) {
+		runWith(tests, new DefaultResultReceiver<Cargo>());
+	}
+
+	public void runWith(BlueprintTest<Cargo, TestUnit> tests, ResultReceiver<Cargo> resultReceiver) {
 		callback.setTests(tests);
-		pipeline.process(tests.getInput());
+		pipeline.process(tests.getInput(), resultReceiver);
 	}
 
 	@Override

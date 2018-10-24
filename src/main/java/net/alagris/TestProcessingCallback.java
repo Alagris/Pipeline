@@ -16,7 +16,7 @@ class TestProcessingCallback<Cargo, TestUnit, Verifier extends PipeTestVerifier<
 	}
 
 	@Override
-	public Cargo process(Pipework<Cargo> pipework, Cargo input) {
+	public Cargo process(Pipework<Cargo> pipework, Cargo input, ResultReceiver<Cargo> resultReceiver) {
 		NodeTest<TestUnit> testUnit = getTests().testForId(pipework.getId());
 		if (testUnit != null) {
 			TestResult inResult = verifier.verifyInput(input, testUnit.getInput());
@@ -25,7 +25,7 @@ class TestProcessingCallback<Cargo, TestUnit, Verifier extends PipeTestVerifier<
 			}
 		}
 		try {
-			input = pipework.process(input);
+			input = pipework.process(input,resultReceiver);
 		} catch (Exception e) {
 			if (processingExceptionCallback != null) {
 				processingExceptionCallback.fail(e, input, pipework);

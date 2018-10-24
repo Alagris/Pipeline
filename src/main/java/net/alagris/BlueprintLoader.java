@@ -63,7 +63,7 @@ public class BlueprintLoader {
 
 	/** Contains set of callback functions that operate on Cargo generic type */
 	public static interface Callbacks<Cargo> {
-		public ResultReceiver<Cargo> getResultReceiver();
+//		public ResultReceiver<Cargo> getResultReceiver();
 
 		public PipeLog<Cargo> getLogger();
 	}
@@ -105,17 +105,23 @@ public class BlueprintLoader {
 
 	public <Cargo, C extends GlobalConfig> Group<Cargo> make(Blueprint<C> blueprint, Class<Cargo> cargo,
 			ProcessingCallback<Cargo> processing, Callbacks<Cargo> callbacks) {
+		if (blueprint.getGlobal() != null)
+			blueprint.getGlobal().onMake();
 		return make(blueprint.getPipeline(), cargo, blueprint.getGlobal(), processing, loadFailCallback,
-				callbacks.getLogger(), callbacks.getResultReceiver());
+				callbacks.getLogger());
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(Blueprint<C> blueprint, Class<T> cargo, Callbacks<T> callbacks) {
 		return make(blueprint, cargo, new DefaultProcessing<T>(processingExceptionCallback), callbacks);
 	}
 
+	/**
+	 * IMPORTANT!! Remember to always call blueprint.getGlobal().onMake(); before
+	 * executing this method
+	 **/
 	private <Cargo, C extends GlobalConfig> Group<Cargo> make(ArrayList<Node> pipeline, final Class<Cargo> cargo,
 			final C globalConfig, final ProcessingCallback<Cargo> processing, final LoadFailCallback loadFailCallback,
-			final PipeLog<Cargo> logger, final ResultReceiver<Cargo> resultReceiver) {
+			final PipeLog<Cargo> logger) {
 
 		final ArrayList<Pipework<Cargo>> gr = ArrayLists.convert(new Converter<Node, Pipework<Cargo>>() {
 
@@ -126,8 +132,7 @@ public class BlueprintLoader {
 				final Map<String, Group<Cargo>> unmodAlts = Collections.unmodifiableMap(alts);
 				final String className = modulesPackage + "." + f.getName();
 				final Pipe<Cargo> pipe = buildPipe(globalConfig, cnfg, className, f.getId());
-				return new Pipework<Cargo>(unmodAlts, pipe, f.getId(), logger, resultReceiver,
-						f.isRunAllAlternatives());
+				return new Pipework<Cargo>(unmodAlts, pipe, f.getId(), logger, f.isRunAllAlternatives());
 			}
 
 			private Pipe<Cargo> buildPipe(final C globalConfig, final Map<String, Object> cnfg, final String className,
@@ -156,7 +161,7 @@ public class BlueprintLoader {
 				return HashMaps.convert(new Converter<ArrayList<Node>, Group<Cargo>>() {
 					@Override
 					public Group<Cargo> convert(ArrayList<Node> f) {
-						return make(f, cargo, globalConfig, processing, loadFailCallback, logger, resultReceiver);
+						return make(f, cargo, globalConfig, processing, loadFailCallback, logger);
 					}
 				}, f.getAlternatives());
 			}

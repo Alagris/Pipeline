@@ -24,12 +24,6 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 			System.out.println(pipework.getTitle() + "\t\t" + out.getValue().toString());
 		}
 	};
-	private ResultReceiver<Cargo> resultReceiver = new ResultReceiver<Cargo>() {
-		@Override
-		public void receive(Result<Cargo> result) {
-			System.err.println("Missed result! " + result.toString());
-		}
-	};
 
 	public BlueprintTypedLoader(String modulesPackage, Class<Cargo> cargo, Class<Cnfg> config) {
 		super(modulesPackage);
@@ -161,13 +155,5 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 		this.logger = logger;
 	}
 
-	@Override
-	public ResultReceiver<Cargo> getResultReceiver() {
-		return resultReceiver;
-	}
-
-	public void setResultReceiver(ResultReceiver<Cargo> resultReceiver) {
-		this.resultReceiver = resultReceiver;
-	}
 
 }

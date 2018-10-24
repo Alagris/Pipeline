@@ -55,4 +55,9 @@ public class HashGlobalConfig implements GlobalConfig {
 
 	private HashMap<String, Object> opts = new HashMap<>();
 
+	@Override
+	public void onMake() {
+		
+	}
+
 }

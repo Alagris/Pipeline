@@ -13,9 +13,9 @@ class DefaultProcessing<Cargo> implements ProcessingCallback<Cargo> {
 	}
 
 	@Override
-	public Cargo process(Pipework<Cargo> pipework, Cargo input) {
+	public Cargo process(Pipework<Cargo> pipework, Cargo input, ResultReceiver<Cargo> resultReceiver) {
 		try {
-			return pipework.process(input);
+			return pipework.process(input, resultReceiver);
 		} catch (Exception e) {
 			if (processingExceptionCallback != null) {
 				processingExceptionCallback.fail(e, input, pipework);

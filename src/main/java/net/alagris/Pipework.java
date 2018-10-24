@@ -13,16 +13,14 @@ public class Pipework<Cargo> implements AutoCloseable {
 	private final Pipe<Cargo> pipe;
 	private final String id;
 	private final PipeLog<Cargo> logger;
-	private final ResultReceiver<Cargo> resultReceiver;
 	private final boolean runAllAlternatives;
 
 	public Pipework(Map<String, Group<Cargo>> alternatives, Pipe<Cargo> pipe, String id, PipeLog<Cargo> logger,
-			ResultReceiver<Cargo> resultReceiver, boolean runAllAlternatives) {
+			boolean runAllAlternatives) {
 		this.alternatives = alternatives;
 		this.pipe = pipe;
 		this.id = id;
 		this.logger = logger;
-		this.resultReceiver = resultReceiver;
 		this.runAllAlternatives = runAllAlternatives;
 	}
 
@@ -34,7 +32,7 @@ public class Pipework<Cargo> implements AutoCloseable {
 		return pipe;
 	}
 
-	public Cargo process(Cargo input) throws Exception {
+	public Cargo process(Cargo input, ResultReceiver<Cargo> resultReceiver) throws Exception {
 		Output<Cargo> out = pipe.process(input);
 		logger.log(this, out);
 		if (out.getResults() != null) {
@@ -44,12 +42,12 @@ public class Pipework<Cargo> implements AutoCloseable {
 		}
 		if (runAllAlternatives) {
 			for (Group<Cargo> alt : alternatives.values()) {
-				alt.process(out.getValue());
+				alt.process(out.getValue(), resultReceiver);
 			}
 		} else {
 			Group<Cargo> alt = alternatives.get(out.getAlternative());
 			if (alt != null) {
-				return alt.process(out.getValue()).getValue();
+				return alt.process(out.getValue(), resultReceiver).getValue();
 			}
 		}
 		return out.getValue();

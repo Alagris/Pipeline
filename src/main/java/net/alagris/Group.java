@@ -38,8 +38,12 @@ public class Group<Cargo> implements Pipe<Cargo> {
 
 	@Override
 	public Output<Cargo> process(Cargo input) {
+		return process(input, new DefaultResultReceiver<Cargo>());
+	}
+
+	public Output<Cargo> process(Cargo input, ResultReceiver<Cargo> resultReceiver) {
 		for (Pipework<Cargo> pipework : group) {
-			input = callback.process(pipework, input);
+			input = callback.process(pipework, input, resultReceiver);
 		}
 		return new Output<Cargo>(input);
 	}
@@ -79,7 +83,7 @@ public class Group<Cargo> implements Pipe<Cargo> {
 		return null;
 	}
 
-	/** Iterates over all {@link Pipework}s recursively (in each alternative).*/
+	/** Iterates over all {@link Pipework}s recursively (in each alternative). */
 	public void forEachPipework(final PipeworkCallback<Cargo> callback) {
 		for (Pipework<Cargo> pipe : group) {
 			callback.doFor(pipe);
@@ -117,7 +121,7 @@ public class Group<Cargo> implements Pipe<Cargo> {
 		forEachConfig(new ConfigCallback<Cargo>() {
 			@Override
 			public void doFor(Pipework<Cargo> pipe, String field, Object value, Class<?> fieldType) {
-				out.println(pipe.getId() + " " + field + " " + value + " (" + fieldType.getSimpleName() + ")");
+				out.println(pipe.getTitle() + " " + field + " " + value + " (" + fieldType.getSimpleName() + ")");
 			}
 		});
 	}
