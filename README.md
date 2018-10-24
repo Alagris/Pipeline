@@ -488,6 +488,20 @@ Here is an example of such flow:
          \                            
            --- -1 = 0 --- 0 (discarded)
     
+In order to trigger such branching you need to use ``"runAllAlternatives": "true"``. Example:
+
+    {
+        "name": "Branching",
+        "id": "Branching-id",
+        "runAllAlternatives": "true",
+        "config": {
+            ...
+        },
+        "alternatives": {
+            ...
+        }
+    }
+    
 ### Convenience and extras
 
 If you plan on applying many covers and loading multiple pipelines but all with the same generic types you might choose to use ``BlueprintTypedLoader``. Example:
