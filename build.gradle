@@ -36,6 +36,12 @@ publishing {
             artifact packageJavadoc
         }
     }
+    repositories {
+        maven {
+            // change to point to your repo, e.g. http://my.org/repo
+            url = "$buildDir/repo"
+        }
+    }
 }
 
 javadoc {
@@ -60,6 +66,16 @@ task packageJavadoc(type: Jar) {
     classifier = 'javadoc'
 }
 
+task cloneRepositoryBranch(type: Exec){
+	commandLine "git clone -b repository git@github.com:Alagris/Pipeline.git $buildDir/repo"
+}
+
+task commitRepositoryBranch(type: Exec){
+	workingDir "$buildDir/repo"
+	commandLine "git add ."
+	commandLine "git commit -m 'Publishing $version'"
+	commandLine "git push origin repository"
+}
 
 dependencies {
 	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.6'
