@@ -1,0 +1,14 @@
+{
+	"global": {
+		"defaultObserved": "initial"
+	},
+	"pipeline": [
+		{
+			"name": "Observer",
+			"id": "Observer-id",
+			"config": {
+				
+			}
+		}
+	]
+}

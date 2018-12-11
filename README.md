@@ -502,6 +502,75 @@ In order to trigger such branching you need to use ``"runAllAlternatives": "true
         }
     }
     
+### Observable config
+
+Sometimes you might need to change configuration at runtime and notify all your pipes about it. The solution is very simple. Pipeline provides you with some ready made utilities specifically for this task: ``ObservableConfig`` and ``ConfigChangeListener ``
+
+First you add ObservableConfig to global config:
+
+
+    class GlobalCnfg extends DoubleHashGlobalConfig{
+        
+        @Override
+        public void onMake() {
+            // this will be called whenever you 
+            // actually instantiate pipeline
+            // (after applying all covers and modifing config)
+            ObservableConfig<String> observed = new ObservableConfig<>();
+            // we might keep default value in separate field
+            String def = get("defaultObserved",String.class);
+            observed.setValue(def);
+            setProgrammaticOpt("observed",observed);
+            
+        }
+    }
+
+Then you add listeners in pipe:
+
+    public class ObserverPipe implements Pipe<String>, ConfigChangeListener<String>{
+    
+        @Config
+        ObservableConfig<String> observed;
+        
+        String lastValue = "";
+        @Override
+        public void close() throws Exception {
+            observed.removeListener(this);
+        }
+    
+        @Override
+        public void onLoad() throws Exception {
+            observed.addListener(this);
+            // pipe's onLoad is called after global config's onLoad
+            // therefore listener's won't be called during initialization.
+            // If you wish to use initial value then do it now
+            lastValue = observed.getValue();
+        }
+    
+        @Override
+        public Output<String> process(String input) throws Exception {
+            return Output.none(input+" "+lastValue);
+        }
+    
+        @Override
+        public void onChange(String newValue, String oldValue) {
+            // do something whenever value changes
+            lastValue = newValue;
+        }
+    
+    }
+    
+In order to change value you need to do this:
+
+    Group<String> gr = loader.make(blueprint);
+    GlobalCnfg cnfg = blueprint.getGlobal();
+    @SuppressWarnings("unchecked")
+    ObservableConfig<String> observed = cnfg.get("observed", ObservableConfig.class);
+    gr.process("...");
+    observed.setValue("foo");
+    gr.process("..."); //this time output should be different
+    
+    
 ### Convenience and extras
 
 If you plan on applying many covers and loading multiple pipelines but all with the same generic types you might choose to use ``BlueprintTypedLoader``. Example:
