@@ -1,3 +1,1 @@
-./gradlew cloneRepositoryBranch
-./gradlew publish
-./gradlew commitRepositoryBranch
+./gradlew publishToGit

@@ -66,16 +66,55 @@ task packageJavadoc(type: Jar) {
     classifier = 'javadoc'
 }
 
-task cloneRepositoryBranch(type: Exec){
-	commandLine "git clone -b repository git@github.com:Alagris/Pipeline.git $buildDir/repo"
+task cloneRepositoryBranch{
+	doLast{
+		exec{
+			commandLine "rm"
+			args = [ "-rf", "$buildDir/repo" ]
+		}
+		exec{
+			commandLine "mkdir"
+			args = [ "-p", "$buildDir/repo" ]
+		}
+		exec{
+			commandLine "git"
+			args = [ "clone", "-b" ,"repository", "git@github.com:Alagris/Pipeline.git", "$buildDir/repo" ]
+		}
+	}
 }
 
-task commitRepositoryBranch(type: Exec){
-	workingDir "$buildDir/repo"
-	commandLine "git add ."
-	commandLine "git commit -m 'Publishing $version'"
-	commandLine "git push origin repository"
+
+
+task commitRepositoryBranch(){
+	doLast{
+		exec{
+			workingDir "$buildDir/repo"
+			commandLine "git"
+			args = [ "add", "." ]
+		}
+		exec{
+			workingDir "$buildDir/repo"
+			commandLine "git"
+			args = [ "commit" ,"-m", "Publishing $version" ]
+		}
+		exec{
+			workingDir "$buildDir/repo"
+			commandLine "git"
+			args = [ "push", "origin", "repository" ]
+		}
+	}
 }
+
+task publishToGit(){
+	dependsOn 'test'
+	dependsOn 'cloneRepositoryBranch'
+    dependsOn 'publish'
+    dependsOn 'commitRepositoryBranch'
+}
+
+publish.dependsOn cloneRepositoryBranch
+
+commitRepositoryBranch.dependsOn publish
 
 dependencies {
 	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.6'
