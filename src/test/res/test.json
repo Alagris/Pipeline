@@ -1,5 +1,7 @@
 {
-	"input": "aB-43",
+	"input": {
+	   "str":"aB-43"
+	},
 	"test": {
 		"Preprocessor-id": {
 			"input": "aB-43"

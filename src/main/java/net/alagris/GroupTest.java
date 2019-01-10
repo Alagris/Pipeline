@@ -20,33 +20,33 @@ public class GroupTest<Cargo, TestUnit> implements AutoCloseable {
 		this.callback = callback;
 	}
 
-	public void runWith(String testJson, Class<Cargo> cargo, Class<TestUnit> unit)
+	public <Builder extends CargoBuilder<Cargo>> void runWith(String testJson, Class<Builder> builder,Class<Cargo> cargo, Class<TestUnit> unit)
 			throws JsonProcessingException, IOException {
-		runWith(BlueprintTest.load(testJson, cargo, unit), new DefaultResultReceiver<Cargo>());
+		runWith(BlueprintTest.load(testJson, builder,cargo, unit), new DefaultResultReceiver<Cargo>());
 	}
 
-	public void runWith(String testJson, Class<Cargo> cargo, Class<TestUnit> unit, ResultReceiver<Cargo> resultReceiver)
+	public <Builder extends CargoBuilder<Cargo>> void runWith(String testJson, Class<Builder> builder,Class<Cargo> cargo, Class<TestUnit> unit, ResultReceiver<Cargo> resultReceiver)
 			throws JsonProcessingException, IOException {
-		runWith(BlueprintTest.load(testJson, cargo, unit));
+		runWith(BlueprintTest.load(testJson,builder, cargo, unit));
 	}
 
-	public void runWith(File testFile, Class<Cargo> cargo, Class<TestUnit> unit)
+	public <Builder extends CargoBuilder<Cargo>> void runWith(File testFile, Class<Builder> builder,Class<Cargo> cargo, Class<TestUnit> unit)
 			throws JsonProcessingException, IOException {
-		runWith(BlueprintTest.load(testFile, cargo, unit), new DefaultResultReceiver<Cargo>());
+		runWith(BlueprintTest.load(testFile, builder,cargo, unit), new DefaultResultReceiver<Cargo>());
 	}
 
-	public void runWith(File testFile, Class<Cargo> cargo, Class<TestUnit> unit, ResultReceiver<Cargo> resultReceiver)
+	public <Builder extends CargoBuilder<Cargo>> void runWith(File testFile, Class<Builder> builder,Class<Cargo> cargo, Class<TestUnit> unit, ResultReceiver<Cargo> resultReceiver)
 			throws JsonProcessingException, IOException {
-		runWith(BlueprintTest.load(testFile, cargo, unit));
+		runWith(BlueprintTest.load(testFile, builder,cargo, unit));
 	}
 
-	public void runWith(BlueprintTest<Cargo, TestUnit> tests) {
+	public <Builder extends CargoBuilder<Cargo>> void runWith(BlueprintTest<Cargo, Builder,TestUnit> tests) {
 		runWith(tests, new DefaultResultReceiver<Cargo>());
 	}
 
-	public void runWith(BlueprintTest<Cargo, TestUnit> tests, ResultReceiver<Cargo> resultReceiver) {
+	public <Builder extends CargoBuilder<Cargo>> void runWith(BlueprintTest<Cargo,Builder, TestUnit> tests, ResultReceiver<Cargo> resultReceiver) {
 		callback.setTests(tests);
-		pipeline.process(tests.getInput(), resultReceiver);
+		pipeline.process(tests.getInput().get(), resultReceiver);
 	}
 
 	@Override

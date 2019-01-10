@@ -5,7 +5,7 @@ class TestProcessingCallback<Cargo, TestUnit, Verifier extends PipeTestVerifier<
 		implements ProcessingCallback<Cargo> {
 
 	private final Verifier verifier;
-	private BlueprintTest<Cargo, TestUnit> tests;
+	private BlueprintTest<Cargo, ? extends CargoBuilder<Cargo>,TestUnit> tests;
 	private final ProcessingExceptionCallback processingExceptionCallback;
 
 	public TestProcessingCallback(Verifier verifier, ProcessingExceptionCallback processingExceptionCallback) {
@@ -40,11 +40,11 @@ class TestProcessingCallback<Cargo, TestUnit, Verifier extends PipeTestVerifier<
 		return input;
 	}
 
-	public BlueprintTest<Cargo, TestUnit> getTests() {
+	public BlueprintTest<Cargo,? extends  CargoBuilder<Cargo>, TestUnit> getTests() {
 		return tests;
 	}
 
-	public void setTests(BlueprintTest<Cargo, TestUnit> tests) {
+	public void setTests(BlueprintTest<Cargo, ? extends CargoBuilder<Cargo>, TestUnit> tests) {
 		this.tests = tests;
 	}
 

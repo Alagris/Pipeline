@@ -1,5 +1,7 @@
 {
-	"input": "That's the spirit!",
+	"input": {
+       "str":"That's the spirit!"
+    },
 	"test": {
 		"Preprocessor-id": {
 			"input": "That's the spirit!"

@@ -231,8 +231,8 @@ public class BlueprintLoader {
 		return new Group<Cargo>(gr, processing);
 	}
 
-	public <Cargo, TestUnit, Verifier extends PipeTestVerifier<Cargo, TestUnit>, Cnfg extends GlobalConfig> GroupTest<Cargo, TestUnit> makeTest(
-			Verifier verifier, Class<Cargo> cargo, Blueprint<Cnfg> blueprint, Callbacks<Cargo> callbacks) {
+	public <Cargo, TestUnit, Cnfg extends GlobalConfig> GroupTest<Cargo, TestUnit> makeTest(
+	        PipeTestVerifier<Cargo, TestUnit> verifier, Class<Cargo> cargo, Blueprint<Cnfg> blueprint, Callbacks<Cargo> callbacks) {
 		TestProcessingCallback<Cargo, TestUnit, PipeTestVerifier<Cargo, TestUnit>> processing = new TestProcessingCallback<Cargo, TestUnit, PipeTestVerifier<Cargo, TestUnit>>(
 				verifier, processingExceptionCallback);
 		Group<Cargo> test = make(blueprint, cargo, processing, callbacks);
