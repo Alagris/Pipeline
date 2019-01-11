@@ -37,16 +37,6 @@ public class BlueprintLoader {
 		this.loadFailCallback = loadFailCallback;
 	}
 
-	private ProcessingExceptionCallback processingExceptionCallback = new DefaultProcessingExceptionCallback();
-
-	public ProcessingExceptionCallback getProcessingExceptionCallback() {
-		return processingExceptionCallback;
-	}
-
-	public void setProcessingExceptionCallback(ProcessingExceptionCallback processingExceptionCallback) {
-		this.processingExceptionCallback = processingExceptionCallback;
-	}
-
 	private final String modulesPackage;
 
 	public BlueprintLoader(String modulesPackage) {
@@ -66,6 +56,8 @@ public class BlueprintLoader {
 //		public ResultReceiver<Cargo> getResultReceiver();
 
 		public PipeLog<Cargo> getLogger();
+
+		public ProcessingExceptionCallback<Cargo> getProcessingExceptionCallback();
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(InputStream in, Class<T> cargo, Class<C> config,
@@ -112,7 +104,7 @@ public class BlueprintLoader {
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(Blueprint<C> blueprint, Class<T> cargo, Callbacks<T> callbacks) {
-		return make(blueprint, cargo, new DefaultProcessing<T>(processingExceptionCallback), callbacks);
+		return make(blueprint, cargo, new DefaultProcessing<T>(callbacks.getProcessingExceptionCallback()), callbacks);
 	}
 
 	/**
@@ -234,7 +226,7 @@ public class BlueprintLoader {
 	public <Cargo, TestUnit, Cnfg extends GlobalConfig> GroupTest<Cargo, TestUnit> makeTest(
 	        PipeTestVerifier<Cargo, TestUnit> verifier, Class<Cargo> cargo, Blueprint<Cnfg> blueprint, Callbacks<Cargo> callbacks) {
 		TestProcessingCallback<Cargo, TestUnit, PipeTestVerifier<Cargo, TestUnit>> processing = new TestProcessingCallback<Cargo, TestUnit, PipeTestVerifier<Cargo, TestUnit>>(
-				verifier, processingExceptionCallback);
+				verifier, callbacks.getProcessingExceptionCallback());
 		Group<Cargo> test = make(blueprint, cargo, processing, callbacks);
 		return new GroupTest<>(test, processing);
 	}

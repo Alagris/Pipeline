@@ -6,9 +6,9 @@ class TestProcessingCallback<Cargo, TestUnit, Verifier extends PipeTestVerifier<
 
 	private final Verifier verifier;
 	private BlueprintTest<Cargo, ? extends CargoBuilder<Cargo>,TestUnit> tests;
-	private final ProcessingExceptionCallback processingExceptionCallback;
+	private final ProcessingExceptionCallback<Cargo> processingExceptionCallback;
 
-	public TestProcessingCallback(Verifier verifier, ProcessingExceptionCallback processingExceptionCallback) {
+	public TestProcessingCallback(Verifier verifier, ProcessingExceptionCallback<Cargo> processingExceptionCallback) {
 		if (verifier == null)
 			throw new NullPointerException("verifier parameter is null");
 		this.processingExceptionCallback = processingExceptionCallback;
@@ -19,10 +19,14 @@ class TestProcessingCallback<Cargo, TestUnit, Verifier extends PipeTestVerifier<
 	public Cargo process(Pipework<Cargo> pipework, Cargo input, ResultReceiver<Cargo> resultReceiver) {
 		NodeTest<TestUnit> testUnit = getTests().testForId(pipework.getId());
 		if (testUnit != null) {
-			TestResult inResult = verifier.verifyInput(input, testUnit.getInput());
-			if (!inResult.isPassed()) {
-				throw new TestFailException(true, pipework.getId(), inResult);
-			}
+		    try {
+    			TestResult inResult = verifier.verifyInput(input, testUnit.getInput());
+    			if (!inResult.isPassed()) {
+    				throw new TestFailException(true, pipework.getId(), inResult);
+    			}
+		    }catch (TestAssertionException e) {
+		        throw new TestFailException(true, pipework.getId(), e.getResult());
+            }
 		}
 		try {
 			input = pipework.process(input,resultReceiver);
@@ -32,10 +36,14 @@ class TestProcessingCallback<Cargo, TestUnit, Verifier extends PipeTestVerifier<
 			}
 		}
 		if (testUnit != null) {
-			TestResult outResult = verifier.verifyOutput(input, testUnit.getOutput());
-			if (!outResult.isPassed()) {
-				throw new TestFailException(false, pipework.getId(), outResult);
-			}
+		    try {
+    			TestResult outResult = verifier.verifyOutput(input, testUnit.getOutput());
+    			if (!outResult.isPassed()) {
+    				throw new TestFailException(false, pipework.getId(), outResult);
+    			}
+		    }catch (TestAssertionException e) {
+                throw new TestFailException(true, pipework.getId(), e.getResult());
+            }
 		}
 		return input;
 	}

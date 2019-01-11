@@ -42,9 +42,9 @@ public class BlueprintFailTest {
 			}
 		});
 		final ArrayList<Class<?>> processingFails = new ArrayList<>();
-		loader.setProcessingExceptionCallback(new ProcessingExceptionCallback() {
+		loader.setProcessingExceptionCallback(new ProcessingExceptionCallback<String>() {
 			@Override
-			public <Cargo> void fail(Exception e, Cargo input, Pipework<Cargo> pipework) {
+			public void fail(Exception e, String input, Pipework<String> pipework) {
 				processingFails.add(pipework.getPipe().getClass());
 			}
 		});

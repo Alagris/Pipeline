@@ -25,6 +25,26 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
         }
     };
 
+    @Override
+    public PipeLog<Cargo> getLogger() {
+        return logger;
+    }
+
+    public void setLogger(PipeLog<Cargo> logger) {
+        this.logger = logger;
+    }
+
+    private ProcessingExceptionCallback<Cargo> processingExceptionCallback = new DefaultProcessingExceptionCallback<>();
+
+    @Override
+    public ProcessingExceptionCallback<Cargo> getProcessingExceptionCallback() {
+        return processingExceptionCallback;
+    }
+
+    public void setProcessingExceptionCallback(ProcessingExceptionCallback<Cargo> processingExceptionCallback) {
+        this.processingExceptionCallback = processingExceptionCallback;
+    }
+
     public BlueprintTypedLoader(String modulesPackage, Class<Cargo> cargo, Class<Cnfg> config) {
         super(modulesPackage);
         this.cargo = cargo;
@@ -149,15 +169,6 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 
     public Class<Cnfg> getConfig() {
         return config;
-    }
-
-    @Override
-    public PipeLog<Cargo> getLogger() {
-        return logger;
-    }
-
-    public void setLogger(PipeLog<Cargo> logger) {
-        this.logger = logger;
     }
 
 }
