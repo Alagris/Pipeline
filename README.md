@@ -320,18 +320,19 @@ Then you can apply covers and use aliases just like you use IDs. The only differ
     
 ### Tests
 
+##### Generic example
 Pipeline makes it very easy for you to create tests.
-First you define test JSON:
+First you define test JSON: (remember to remove comments as they are not valid json)
 
     {
-        "input": "aB-43",
+        "input": "aB-43",  //deserialized with CargoBuilder<Cargo>
         "test": {
             "Preprocessor-id": {
-                "input": "aB-43"
+                "input": "aB-43" //deserialized with TestUnit
             },
             "Branching-id": {
-                "input": "aB-43-t",
-                "output": "AB-43-T"
+                "input": "aB-43-t", //deserialized with TestUnit
+                "output": "AB-43-T" //deserialized with TestUnit
             },
             "Truecaser-id": {
                 "input": "",
@@ -354,7 +355,12 @@ Then you create testing pipeline:
     /**Verifier checks if produced Cargo is acceptable by TestUnit*/
     PipeTestVerifier<Cargo, TestUnit> verifier = ...; 
     GroupTest<Cargo, TestUnit> testPipeline = loader.makeTest(blueprint, verifier);
-    BlueprintTest<Cargo, TestUnit> blueprintTest = BlueprintTest.load(new File(...),Cargo.class,TestUnit.class);
+    BlueprintTest<Cargo, CargoBuilder<String>, TestUnit> blueprintTest = BlueprintTest.load(
+        new File(...), 
+        CargoBuilder.class, //Class that deserializes initial input
+        Cargo.class, 
+        TestUnit.class //Class that deserializes expected input/output
+    );
         
 
 and run it:
@@ -362,6 +368,8 @@ and run it:
     testPipeline.runWith(blueprintTest);
     
 ``Cargo`` should be your class that carries data inside pipeline (most basic example is just plain String as in previous examples).
+
+##### TestUnit
 ``TestUnit `` is the class that deserializes ``"input":...`` and ``"output":...``. Simplest choice is String but it might be for example something like this:
 
 java:
@@ -386,9 +394,78 @@ json:
             }
         }
     }
-    
-You can very easily use this from JUnit (although it works separate just fine).
 
+##### CargoBuilder
+
+``CargoBuilder`` deserializes intial input and builds Cargo based on deserialized values. If you decide to use ``String`` as Cargo, then you might want to use ``DefaultStringBuilder`` as a straight-forward implementation:
+
+    BlueprintTest<Cargo, CargoBuilder<String>, TestUnit> blueprintTest = BlueprintTest.load(
+        new File(...), 
+        DefaultStringBuilder.class,
+        String.class, 
+        String.class 
+    );
+    
+But you might use something more complex like this:
+
+
+    public class CustomStringBuilder implements CargoBuilder<String>{
+    
+        private String str;
+        private int num
+        
+        @Override
+        public String get() {
+            return getStr() + getNum(); //concatenation
+        }
+    
+        public String getStr() {
+            return str;
+        }
+    
+        public void setStr(String str) {
+            this.str = str;
+        }
+        
+        public int getNum() {
+            return num;
+        }
+    
+        public void setNum(int num) {
+            this. num = num;
+        }
+    
+    }
+
+##### PipeTestVerifier
+In order to make use of all this, you need to verify if input and output of each pipe passes the tests. To do this you need to implement ``PipeTestVerifier<Cargo, TestUnit>``. The simplest choice is ``PipeStringTestVerifier`` which just compares string. But you could make something custom like this:
+
+    public class CustomTestVerifier implements PipeTestVerifier<String, String> {
+    
+        @Override
+        public TestResult verifyInput(String input, String testUnit) {
+            if (testUnit == null)
+                return TestResult.pass(); //nothing specified in JSON, then there is nothing to test
+            if (input.length()<3)
+                return TestResult.fail("expected longer string","found of length" + input.length());
+            return new TestResult(input.equals(testUnit), testUnit, input);
+        }
+    
+        @Override
+        public TestResult verifyOutput(String output, String testUnit) {
+            if (testUnit == null)
+                return TestResult.pass();
+            //assert they are equal
+            TestResult.equals(testUnit, output); //works just like JUnit! 
+            return TestResult.pass();
+        }
+    
+    }
+
+Inside the methods ``verifyInput`` and ``verifyOutput``, you can put all your validation logic. You need to return ``TestResult.pass()`` if the test passed and ``TestResult.fail()`` otherwise. However, you might alternatively use:
+
+- ``return new TestResult(boolean passed, String expected, String found)``
+- ``TestResult.equals(expected, found)`` - this will throw special exception that gets caught by framework and promoted as test failure.
 
 ### Emitters
 
@@ -603,7 +680,7 @@ If you plan on applying many covers and loading multiple pipelines but all with 
         <dependency>
             <groupId>pipeline</groupId>
             <artifactId>pipeline</artifactId>
-            <version>1.7</version>
+            <version>1.9</version>
         </dependency>
     </dependencies>    
     
@@ -615,5 +692,5 @@ If you plan on applying many covers and loading multiple pipelines but all with 
     }
     
     dependencies {
-        compile group: 'pipeline', name: 'pipeline', version:'1.7'
+        compile group: 'pipeline', name: 'pipeline', version:'1.9'
     }
