@@ -4,6 +4,7 @@ import java.io.File;
 
 class TestConstants {
 	static final File PIPELINE = new File("src/test/res/pipeline.json");
+	static final File DEEPER = new File("src/test/res/deeper.json");
 	static final File OBSERVER_PIPELINE = new File("src/test/res/observer_pipeline.json");
 	static final File COVER = new File("src/test/res/cover.json");
 	static final File ALIASED = new File("src/test/res/aliased.json");

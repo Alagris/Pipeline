@@ -122,7 +122,8 @@ public class BlueprintLoader {
 				final Map<String, Object> cnfg = Collections.unmodifiableMap(f.getConfig());
 				final HashMap<String, Group<Cargo>> alts = makeAlternatives(cargo, globalConfig, f);
 				final Map<String, Group<Cargo>> unmodAlts = Collections.unmodifiableMap(alts);
-				final String className = modulesPackage + "." + f.getName();
+				//if f.getName() contains . then it's probably absolute path to class
+				final String className = f.getName().contains(".") ? f.getName() : modulesPackage + "." + f.getName();
 				final Pipe<Cargo> pipe = buildPipe(globalConfig, cnfg, className, f.getId());
 				return new Pipework<Cargo>(unmodAlts, pipe, f.getId(), logger, f.isRunAllAlternatives());
 			}

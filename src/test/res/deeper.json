@@ -1,0 +1,41 @@
+{
+    "pipeline": [
+        {
+            "name": "net.alagris.test.absolute.pipes.AbsolutePipe1",
+            "id": "abs",
+            "config": {
+            }
+        },
+        {
+            "name": "net.alagris.test.absolute.pipes.deeper.AbsolutePipe1",
+            "id": "deeper",
+            "config": {
+            }
+        },
+        {
+            "name": "Branching",
+            "id": "Branching-id",
+            "config": {
+                "left": "1",
+                "right": "2"
+            },
+            "alternatives": {
+                "left": [
+                    {
+                        "name": "Lowercase",
+                        "id": "Lowercase-id"
+                    },
+                    {
+                        "name": "UppercaseFirst",
+                        "id": "Truecaser-id"
+                    }
+                ],
+                "right": [
+                    {
+                        "name": "Uppercase"
+                    }
+                ]
+            }
+        }
+    ]
+}
