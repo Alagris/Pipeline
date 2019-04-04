@@ -39,5 +39,10 @@ public class ObservableConfig<T> {
     public void removeListener(ConfigChangeListener<T> listener) {
         listeners.remove(listener);
     }
+    
+    @Override
+    public String toString() {
+        return value.toString();
+    }
 
 }
