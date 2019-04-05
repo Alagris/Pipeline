@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -373,6 +374,50 @@ final class Classes {
             name = "[L" + componentType.getName() + ";";
         }
         return (Class<T[]>) (classLoader != null ? classLoader.loadClass(name) : Class.forName(name));
+    }
+
+    public static String deepToString(Object value, Class<?> fieldType) {
+        if(value != null && fieldType.isArray()) {
+            if(String.class.equals(fieldType.getComponentType())) {
+                return Arrays.toString((String[]) value);
+            }else if(float.class.equals(fieldType.getComponentType())) {
+                return Arrays.toString((float[]) value);
+            }else if(double.class.equals(fieldType.getComponentType())) {
+                return Arrays.toString((double[]) value);
+            }else if(int.class.equals(fieldType.getComponentType())) {
+                return Arrays.toString((int[]) value);
+            }else if(short.class.equals(fieldType.getComponentType())) {
+                return Arrays.toString((short[]) value);
+            }else if(byte.class.equals(fieldType.getComponentType())) {
+                return Arrays.toString((byte[]) value);
+            }else if(char.class.equals(fieldType.getComponentType())) {
+                return Arrays.toString((char[]) value);
+            }else if(long.class.equals(fieldType.getComponentType())) {
+                return Arrays.toString((long[]) value);
+            }else if(Float.class.equals(fieldType.getComponentType())) {
+                return Arrays.toString((Float[]) value);
+            }else if(Double.class.equals(fieldType.getComponentType())) {
+                return Arrays.toString((Double[]) value);
+            }else if(Integer.class.equals(fieldType.getComponentType())) {
+                return Arrays.toString((Integer[]) value);
+            }else if(Short.class.equals(fieldType.getComponentType())) {
+                return Arrays.toString((Short[]) value);
+            }else if(Byte.class.equals(fieldType.getComponentType())) {
+                return Arrays.toString((Byte[]) value);
+            }else if(Character.class.equals(fieldType.getComponentType())) {
+                return Arrays.toString((Character[]) value);
+            }else if(Long.class.equals(fieldType.getComponentType())) {
+                return Arrays.toString((Long[]) value);
+            }else {
+                try {
+                    return Arrays.toString((Object[])value);
+                }catch (ClassCastException e) {
+                    return String.valueOf(value);
+                }
+            }
+        }else {
+            return String.valueOf(value);
+        }        
     }
 
 }

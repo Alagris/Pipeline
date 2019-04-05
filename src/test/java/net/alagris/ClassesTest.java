@@ -3,6 +3,8 @@ package net.alagris;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -56,4 +58,17 @@ public class ClassesTest {
 		assertEquals("lo", c[1].s);
 		assertEquals("world", c[2].s);
 	}
+	
+	@Test
+	public void deepToString() {
+	    String[] str = {"a", "b"};
+	    assertEquals("[a, b]",Classes.deepToString(str, String[].class));
+	    float[] f = {0.1f, 54.76f};
+	    assertEquals("[0.1, 54.76]",Classes.deepToString(f, float[].class));
+	    Path[] p = {Paths.get("he", "llo"), Paths.get("w", "o","rld")};
+        assertEquals("[he/llo, w/o/rld]",Classes.deepToString(p, Path[].class));
+        Float[] f2 = {0.1f, 54.76f};
+        assertEquals("[0.1, 54.76]",Classes.deepToString(f2, Float[].class));
+	}
+	
 }

@@ -121,7 +121,7 @@ public class Group<Cargo> implements Pipe<Cargo> {
 		forEachConfig(new ConfigCallback<Cargo>() {
 			@Override
 			public void doFor(Pipework<Cargo> pipe, String field, Object value, Class<?> fieldType) {
-				out.println(pipe.getTitle() + " " + field + " " + value + " (" + fieldType.getSimpleName() + ")");
+				out.println(pipe.getTitle() + " " + field + " " +  Classes.deepToString(value,fieldType) + " (" + fieldType.getSimpleName() + ")");
 			}
 		});
 	}
