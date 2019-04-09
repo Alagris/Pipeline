@@ -42,7 +42,7 @@ public class ObservableConfig<T> {
     
     @Override
     public String toString() {
-        return value.toString();
+        return String.valueOf(value);
     }
 
 }
