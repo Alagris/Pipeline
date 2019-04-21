@@ -119,11 +119,11 @@ Pipeline will automatically parse JSON into the following types:
 * int[], byte[], char[], short[] ...
 * Integer[], Byte[], Character[], Short[] ...
 * String[]
-* ArrayList\<Object> - *Warning!* due to type erase it impossible to for framework to know generic parameter of ArrayList. Therefore, everytime you use ArrayList, framework will just *assume* it to be ArrayList\<Object>. You can techincally use any other kind of ArrayList but it can optentially result in ClassCastException at some point.
+* ArrayList\<Object> - *Warning!* due to type erasure it's impossible for framework to know generic parameter of ArrayList. Therefore, everytime you use ArrayList, framework will just *assume* it to be ArrayList\<Object>. You could techincally use any other kind of ArrayList but it might optentially result in ClassCastException at some point.
 * Map\<String,Object> - same problem as with ArrayList
 * Pattern
 * Pattern[]
-* Any type ``T`` that has a constructor ``T(Sting)`` (with one single ``String`` parameter). You can also use ``T[]``. For example ``File``, ``Locale``,``StringBuilder``.
+* Any type ``T`` that has a constructor ``T(String)`` (with one single ``String`` parameter). You can also use ``T[]``. For example ``File``, ``Locale``,``StringBuilder``.
 
 
 If you wish to use ``@Config`` for any other type you should parse it in your own ``GlobalConfig`` (read below).
@@ -217,7 +217,7 @@ By default pipeline prints intermediate outputs. You can change level of verbosi
 
 ### Covers
 
-Sometimes you might wish to reuse existing pipeline with some tiny configuration modifications. This is exactly what BlueprintCover is for. JSON example:
+Sometimes you might wish to reuse exiString pipeline with some tiny configuration modifications. This is exactly what BlueprintCover is for. JSON example:
 
     {
         "global": {
@@ -347,7 +347,7 @@ First you define test JSON: (remember to remove comments as they are not valid j
         }
     }
     
-Then you create testing pipeline:
+Then you create teString pipeline:
 
 
     BlueprintLoader loader = new BlueprintLoader("your.package.with.pipe.classes");
