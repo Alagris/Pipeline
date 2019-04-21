@@ -7,9 +7,9 @@
 			"tap2"
 		],
 		"ints": [
-			"099",
-			"1499",
-			"43"
+			99,
+			1499,
+			43
 		]
 	},
 	"cover": {
@@ -26,7 +26,7 @@
 		},
 		"Truecaser-id": {
 			"config": {
-				"enabled": "false"
+				"enabled": false
 			}
 		},
 		"Lowercase-id": {

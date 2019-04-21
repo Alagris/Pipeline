@@ -5,7 +5,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -58,17 +60,32 @@ final class Classes {
         if (type.isAssignableFrom(val.getClass())) {
             return val;
         }
-        if (type.isArray()) {
-            List<String> strList = null;
-            try {
-                strList = (List<String>) val;
-            } catch (ClassCastException e) {
-            }
-            if (strList != null) {
-                final Class<?> comp = type.getComponentType();
-                final List<?> list = parseStringArray(comp, strList);
-                return toArray(list, comp);
-            }
+        if (type.isArray()) { // we need to return array
+        	final Class<?> targetComp = type.getComponentType();
+        	if(val.getClass().isArray()) { // we get array
+        		int len = Array.getLength(val);
+        		Object arr = Array.newInstance(targetComp, len);
+        		for(int i = 0;i < len;i++) {
+        			Array.set(arr, i, parseObject(targetComp, Array.get(val, i)));
+        		}
+            	return arr;
+        	}else if (List.class.isAssignableFrom(val.getClass())) { // we get a list
+        		try { // we need to parse strings in given list
+                	List<String> strList = (List<String>) val;
+                    final List<?> list = parseStringArray(targetComp, strList);
+                    return toArray(list, targetComp);
+                } catch (ClassCastException e) {
+                }
+        		//we just need to convert lists
+        		List<?> genericList = (List<?>) val;
+        		if(targetComp.isPrimitive()) {
+        			return toPrimitiveArray(genericList, targetComp);
+        		}
+        		if(genericList.isEmpty()) {//special case to handle
+    				return Collections.emptyList().toArray();
+    			}
+        		return convertListToArray(targetComp,genericList);
+        	}
         } else if (type.isEnum()) {
             try {
                 return Enum.valueOf((Class<Enum>) type, (String) val);
@@ -93,15 +110,30 @@ final class Classes {
                     | IllegalArgumentException | InvocationTargetException e) {
             }
         }
+        if(val.getClass().isPrimitive() && isPrimitiveWrapper(type)) {
+        	try {
+                return wrapPrimitive(val);
+            } catch (ClassCastException e) {
+            }
+        }
+        if(type.isPrimitive() && isPrimitiveWrapper(val.getClass())) {
+        	try {
+                return unwrapPrimitive(val);
+            } catch (ClassCastException e) {
+            }
+        }
         try {
             return type.cast(val);
         } catch (ClassCastException e) {
         }
+        
         throw new UnsupportedOperationException(
                 "Could not find any way to convert " + val.getClass().getName() + " to " + type.getName());
     }
 
-    public static Object parseString(Class<?> type, String val) {
+    
+
+	public static Object parseString(Class<?> type, String val) {
         if (type == Boolean.class) {
             return Boolean.valueOf(val);
         } else if (type == boolean.class) {
@@ -149,7 +181,15 @@ final class Classes {
     }
 
     public static <To> Converter<String, To> parser(final Class<To> type) {
-        if (type.isAssignableFrom(Boolean.class) || type == boolean.class) {
+    	if(type.isAssignableFrom(Object.class)) {
+    		return new Converter<String, To>() {
+				@SuppressWarnings("unchecked")
+				@Override
+				public To convert(String f) {
+					return (To) f;
+				}
+			};
+    	}else if (type.isAssignableFrom(Boolean.class) || type == boolean.class) {
             return new Converter<String, To>() {
                 @SuppressWarnings("unchecked")
                 @Override
@@ -419,5 +459,121 @@ final class Classes {
             return String.valueOf(value);
         }        
     }
+    
+    private static Object wrapPrimitive(Object value) {
+    	Class<?> type = value.getClass();
+    	if(float.class.equals(type)) {
+            return new Float((float) value);
+        }else if(double.class.equals(type)) {
+            return new Double((double) value);
+        }else if(int.class.equals(type)) {
+            return new Integer((int) value);
+        }else if(short.class.equals(type)) {
+            return new Short((short) value);
+        }else if(byte.class.equals(type)) {
+            return new Byte((byte) value);
+        }else if(char.class.equals(type)) {
+            return new Character((char) value);
+        }else if(long.class.equals(type)) {
+            return new Long((long) value);
+        }
+    	throw new ClassCastException(type + " is not primitive!");
+    }
+    
+    private static Object unwrapPrimitive(Object value) {
+    	Class<?> type = value.getClass();
+    	if(Float.class.equals(type)) {
+            return ((Float) value).floatValue();
+        }else if(Double.class.equals(type)) {
+            return ((Double) value).doubleValue();
+        }else if(Integer.class.equals(type)) {
+            return ((Integer) value).intValue();
+        }else if(Short.class.equals(type)) {
+            return ((Short) value).shortValue();
+        }else if(Byte.class.equals(type)) {
+            return ((Byte) value).byteValue();
+        }else if(Character.class.equals(type)) {
+            return ((Character) value).charValue();
+        }else if(Long.class.equals(type)) {
+            return ((Long) value).longValue();
+        }
+    	throw new ClassCastException(type + " is not primitive wrapper!");
+    }
+    private static boolean isPrimitiveWrapper(Class c) {
+    	return Float.class.equals(c) 
+    			||Double.class.equals(c)
+    			||Integer.class.equals(c)
+    			||Short.class.equals(c)
+    			||Byte.class.equals(c)
+    			||Character.class.equals(c)
+    			||Long.class.equals(c);
+    }
+    
+	private static Object convertListToArray(Class<?> targetComp, @SuppressWarnings("rawtypes") List genericList) {
+    	if(float.class.equals(targetComp)) {
+    		float[] arr = new float[genericList.size()];
+    		@SuppressWarnings("rawtypes")
+			Iterator iter = genericList.iterator();
+    		for(int i=0;i<arr.length;i++) {
+    			arr[i] = (float) parseObject(targetComp, iter.next());
+    		}
+            return arr;
+        }else if(double.class.equals(targetComp)) {
+        	double[] arr = new double[genericList.size()];
+    		@SuppressWarnings("rawtypes")
+			Iterator iter = genericList.iterator();
+    		for(int i=0;i<arr.length;i++) {
+    			arr[i] = (double) parseObject(targetComp, iter.next());
+    		}
+            return arr;
+        }else if(int.class.equals(targetComp)) {
+        	int[] arr = new int[genericList.size()];
+    		@SuppressWarnings("rawtypes")
+			Iterator iter = genericList.iterator();
+    		for(int i=0;i<arr.length;i++) {
+    			arr[i] = (int) parseObject(targetComp, iter.next());
+    		}
+            return arr;
+        }else if(short.class.equals(targetComp)) {
+        	short[] arr = new short[genericList.size()];
+    		@SuppressWarnings("rawtypes")
+			Iterator iter = genericList.iterator();
+    		for(int i=0;i<arr.length;i++) {
+    			arr[i] = (short) parseObject(targetComp, iter.next());
+    		}
+            return arr;
+        }else if(byte.class.equals(targetComp)) {
+        	byte[] arr = new byte[genericList.size()];
+    		@SuppressWarnings("rawtypes")
+			Iterator iter = genericList.iterator();
+    		for(int i=0;i<arr.length;i++) {
+    			arr[i] = (byte) parseObject(targetComp, iter.next());
+    		}
+            return arr;
+        }else if(char.class.equals(targetComp)) {
+        	char[] arr = new char[genericList.size()];
+    		@SuppressWarnings("rawtypes")
+			Iterator iter = genericList.iterator();
+    		for(int i=0;i<arr.length;i++) {
+    			arr[i] = (char) parseObject(targetComp, iter.next());
+    		}
+            return arr;
+        }else if(long.class.equals(targetComp)) {
+        	long[] arr = new long[genericList.size()];
+    		@SuppressWarnings("rawtypes")
+			Iterator iter = genericList.iterator();
+    		for(int i=0;i<arr.length;i++) {
+    			arr[i] = (long) parseObject(targetComp, iter.next());
+    		}
+            return arr;
+        }else {
+        	Object[] arr = (Object[]) Array.newInstance(targetComp, genericList.size());
+        	int i = 0;
+    		for(Object o:genericList) {
+    			arr[i++] = parseObject(targetComp, o);
+    		}
+        	return arr;
+        }
+	}
 
 }

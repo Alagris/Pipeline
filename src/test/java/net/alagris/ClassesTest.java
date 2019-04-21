@@ -1,11 +1,16 @@
 package net.alagris;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Test;
@@ -21,6 +26,42 @@ public class ClassesTest {
 		assertEquals(TestEnum.TEST1, Classes.parseObject(TestEnum.class, "TEST1"));
 		assertEquals(TestEnum.TEST2, Classes.parseObject(TestEnum.class, "TEST2"));
 		assertEquals(TestEnum.TEST3, Classes.parseObject(TestEnum.class, "TEST3"));
+	}
+	
+
+	@Test
+	public void parseObjectArrays() {
+		Integer[] integers = {1 ,4 ,75, -54};
+		int[] ints = {1 ,4 ,75, -54};
+		Float[] floatsC = {1.4f ,0f ,75f, -54.53f};
+		float[] floats = {1.4f ,0f ,75f, -54.53f};
+		String[] strings = {"try", "me"};
+		Object[] objects = {"try", "me"};
+		List<Integer> integersA = Arrays.asList(1 ,4 ,75, -54);
+		List<Float> floatsCA = Arrays.asList(1.4f ,0f ,75f, -54.53f);
+		List<String> stringsA = Arrays.asList("try", "me");
+		List<Object> objectsA = Arrays.asList((Object)"try", (Object)"me");
+		assertArrayEquals(integers, (Integer[]) Classes.parseObject(Integer[].class, ints));
+		assertArrayEquals(ints, (int[]) Classes.parseObject(int[].class, integers));
+		assertArrayEquals(floatsC, (Float[]) Classes.parseObject(Float[].class, floats));
+		assertArrayEquals(floats, (float[]) Classes.parseObject(float[].class, floatsC), 0);
+		assertArrayEquals(floatsC, (Float[]) Classes.parseObject(Float[].class, floatsCA));
+		assertArrayEquals(integers, (Integer[]) Classes.parseObject(Integer[].class, integersA));
+		assertArrayEquals(objects, (Object[]) Classes.parseObject(Object[].class, strings));
+		assertArrayEquals(strings, (String[]) Classes.parseObject(String[].class, objects));
+		assertArrayEquals(strings, (String[]) Classes.parseObject(String[].class, objectsA));
+		assertArrayEquals(objects, (Object[]) Classes.parseObject(Object[].class, objectsA));
+	}
+
+	private <T> void assertListsEquals(List<T> a, List<T> b) {
+		Iterator<T> ia = a.iterator();
+		Iterator<T> ib = b.iterator();
+		while(ia.hasNext()&&ib.hasNext()) {
+			assertEquals(ia.next(), ib.next());
+		}
+		if(ia.hasNext()||ib.hasNext()) {
+			fail("expected " + (ia.hasNext()? ia.next() : "end") + " but found " + (ib.hasNext()? ib.next() : "end"));
+		}
 	}
 
 	public static class ClassWithStringConstructor {

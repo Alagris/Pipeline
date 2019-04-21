@@ -22,7 +22,12 @@
 					"re",
 					"move",
 					"bugs"
-				]
+				],
+				"dictionary": {
+					"a": "b",
+					"b": [1,2,3],
+					"c": {"i": 1,"b": true, "s": "str"}
+				}
 			}
 		},
 		{

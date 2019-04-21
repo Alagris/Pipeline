@@ -1,6 +1,7 @@
 package net.alagris;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class Preprocessor extends OptionalPipe<String> {
 
@@ -18,6 +19,9 @@ public class Preprocessor extends OptionalPipe<String> {
 
 	@Config("strings")
 	ArrayList<String> dynPaths;
+	
+	@Config
+	Map<String,Object> dictionary;
 
 	@Override
 	public Output<String> processOptional(String input) {

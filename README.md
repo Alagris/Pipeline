@@ -119,10 +119,12 @@ Pipeline will automatically parse JSON into the following types:
 * int[], byte[], char[], short[] ...
 * Integer[], Byte[], Character[], Short[] ...
 * String[]
-* ArrayList\<String>
+* ArrayList\<Object> - *Warning!* due to type erase it impossible to for framework to know generic parameter of ArrayList. Therefore, everytime you use ArrayList, framework will just *assume* it to be ArrayList\<Object>. You can techincally use any other kind of ArrayList but it can optentially result in ClassCastException at some point.
+* Map\<String,Object> - same problem as with ArrayList
 * Pattern
 * Pattern[]
 * Any type ``T`` that has a constructor ``T(Sting)`` (with one single ``String`` parameter). You can also use ``T[]``. For example ``File``, ``Locale``,``StringBuilder``.
+
 
 If you wish to use ``@Config`` for any other type you should parse it in your own ``GlobalConfig`` (read below).
 
@@ -680,7 +682,7 @@ If you plan on applying many covers and loading multiple pipelines but all with 
         <dependency>
             <groupId>pipeline</groupId>
             <artifactId>pipeline</artifactId>
-            <version>1.9</version>
+            <version>1.11</version>
         </dependency>
     </dependencies>    
     
@@ -692,5 +694,5 @@ If you plan on applying many covers and loading multiple pipelines but all with 
     }
     
     dependencies {
-        compile group: 'pipeline', name: 'pipeline', version:'1.9'
+        compile group: 'pipeline', name: 'pipeline', version:'1.11'
     }

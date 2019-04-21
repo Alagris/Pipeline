@@ -4,6 +4,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.junit.Test;
@@ -38,6 +39,17 @@ public class BlueprintTypedLoaderTest {
 		HashMap<String, Object> preprocessorC = preprocessor.getConfig();
 		assertEquals("Not enabled!", "true", preprocessorC.get("enabled"));
 		assertEquals("Suffix wrong!", "-t", preprocessorC.get("suffix"));
+		@SuppressWarnings("unchecked")
+		HashMap<String, Object> dictionary = (HashMap<String, Object>) preprocessorC.get("dictionary");
+		assertEquals("dictionary wrong!", "b", dictionary.get("a"));
+		@SuppressWarnings("unchecked")
+		ArrayList<Integer> subList = (ArrayList<Integer>)dictionary.get("b");
+		assertArrayEquals("dictionary wrong!", new Integer[] {1,2,3}, subList.toArray(new Integer[0]));
+		@SuppressWarnings("unchecked")
+		HashMap<String, Object> subdictionary = (HashMap<String, Object>) dictionary.get("c");
+		assertEquals("subdictionary wrong!", 1, subdictionary.get("i"));
+		assertEquals("subdictionary wrong!", true, subdictionary.get("b"));
+		assertEquals("subdictionary wrong!", "str", subdictionary.get("s"));
 	}
 
 	@Test
@@ -51,6 +63,17 @@ public class BlueprintTypedLoaderTest {
 		assertEquals("dynPaths wrong!", "move", preprocessor.dynPaths.get(1));
 		assertEquals("dynPaths wrong!", "bugs", preprocessor.dynPaths.get(2));
 		assertEquals("dynPaths wrong!", 3, preprocessor.dynPaths.size());
+		
+		HashMap<String, Object> dictionary = (HashMap<String, Object>) preprocessor.dictionary;
+		assertEquals("dictionary wrong!", "b", dictionary.get("a"));
+		@SuppressWarnings("unchecked")
+		ArrayList<Integer> subList = (ArrayList<Integer>)dictionary.get("b");
+		assertArrayEquals("dictionary wrong!", new Integer[] {1,2,3}, subList.toArray(new Integer[0]));
+		@SuppressWarnings("unchecked")
+		HashMap<String, Object> subdictionary = (HashMap<String, Object>) dictionary.get("c");
+		assertEquals("subdictionary wrong!", 1, subdictionary.get("i"));
+		assertEquals("subdictionary wrong!", true, subdictionary.get("b"));
+		assertEquals("subdictionary wrong!", "str", subdictionary.get("s"));
 	}
 
 	@Test
