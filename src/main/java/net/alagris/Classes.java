@@ -319,6 +319,8 @@ final class Classes {
             return toShorts((List<Short>) list);
         } else if (componentType == long.class) {
             return toLongs((List<Long>) list);
+        } else if (componentType == boolean.class) {
+            return toBooleans((List<Boolean>) list);
         }
         throw new UnsupportedOperationException(componentType.getName() + " is not primitive!");
     }
@@ -327,6 +329,15 @@ final class Classes {
         int[] out = new int[ints.size()];
         int i = 0;
         for (Integer ii : ints) {
+            out[i++] = ii;
+        }
+        return out;
+    }
+    
+    public static boolean[] toBooleans(List<Boolean> bools) {
+        boolean[] out = new boolean[bools.size()];
+        int i = 0;
+        for (Boolean ii : bools) {
             out[i++] = ii;
         }
         return out;
@@ -434,6 +445,8 @@ final class Classes {
                 return Arrays.toString((char[]) value);
             }else if(long.class.equals(fieldType.getComponentType())) {
                 return Arrays.toString((long[]) value);
+            }else if(boolean.class.equals(fieldType.getComponentType())) {
+                return Arrays.toString((boolean[]) value);
             }else if(Float.class.equals(fieldType.getComponentType())) {
                 return Arrays.toString((Float[]) value);
             }else if(Double.class.equals(fieldType.getComponentType())) {
@@ -448,6 +461,8 @@ final class Classes {
                 return Arrays.toString((Character[]) value);
             }else if(Long.class.equals(fieldType.getComponentType())) {
                 return Arrays.toString((Long[]) value);
+            }else if(Boolean.class.equals(fieldType.getComponentType())) {
+                return Arrays.toString((Boolean[]) value);
             }else {
                 try {
                     return Arrays.toString((Object[])value);
@@ -476,6 +491,8 @@ final class Classes {
             return new Character((char) value);
         }else if(long.class.equals(type)) {
             return new Long((long) value);
+        }else if(boolean.class.equals(type)) {
+            return new Boolean((boolean) value);
         }
     	throw new ClassCastException(type + " is not primitive!");
     }
@@ -496,17 +513,20 @@ final class Classes {
             return ((Character) value).charValue();
         }else if(Long.class.equals(type)) {
             return ((Long) value).longValue();
+        }else if(Boolean.class.equals(type)) {
+            return ((Boolean) value).booleanValue();
         }
     	throw new ClassCastException(type + " is not primitive wrapper!");
     }
-    private static boolean isPrimitiveWrapper(Class c) {
+    private static boolean isPrimitiveWrapper(Class<?> c) {
     	return Float.class.equals(c) 
     			||Double.class.equals(c)
     			||Integer.class.equals(c)
     			||Short.class.equals(c)
     			||Byte.class.equals(c)
     			||Character.class.equals(c)
-    			||Long.class.equals(c);
+    			||Long.class.equals(c)
+    			||Boolean.class.equals(c);
     }
     
 	private static Object convertListToArray(Class<?> targetComp, @SuppressWarnings("rawtypes") List genericList) {
@@ -524,6 +544,14 @@ final class Classes {
 			Iterator iter = genericList.iterator();
     		for(int i=0;i<arr.length;i++) {
     			arr[i] = (double) parseObject(targetComp, iter.next());
+    		}
+            return arr;
+        }else if(boolean.class.equals(targetComp)) {
+        	boolean[] arr = new boolean[genericList.size()];
+    		@SuppressWarnings("rawtypes")
+			Iterator iter = genericList.iterator();
+    		for(int i=0;i<arr.length;i++) {
+    			arr[i] = (boolean) parseObject(targetComp, iter.next());
     		}
             return arr;
         }else if(int.class.equals(targetComp)) {
