@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 
 //Not part of public interface
@@ -60,6 +61,59 @@ final class Classes {
         if (type.isAssignableFrom(val.getClass())) {
             return val;
         }
+        if(val.getClass().isPrimitive()) {
+            if(isPrimitiveWrapper(type)) {
+                try {
+                    return wrapPrimitive(convertPrimitiveType(type,val));
+                } catch (ClassCastException e) {
+                    assert false: e.getMessage() + " primitive val: "+val.getClass()+" wrapper type: "+ type  + new Callable<String>() {
+                        @Override
+                        public String call() {
+                            e.printStackTrace();
+                            return "";
+                        }
+                    }.call();
+                }
+            }else if(type.isPrimitive()) {
+                try {
+                    return convertPrimitiveType(type,val);
+                } catch (ClassCastException e) {
+                    assert false: e.getMessage() + " primitive val: "+val.getClass()+" primitive type: "+ type + new Callable<String>() {
+                        @Override
+                        public String call() {
+                            e.printStackTrace();
+                            return "";
+                        }
+                    }.call();
+                }
+            }
+        }else if(isPrimitiveWrapper(val.getClass())) {
+            if(type.isPrimitive()) {
+                try {
+                    return unwrapPrimitive(type, val);
+                } catch (ClassCastException e) {
+                    assert false: e.getMessage() + " wrapper val: "+val.getClass()+" primitive type: "+ type + new Callable<String>() {
+                        @Override
+                        public String call() {
+                            e.printStackTrace();
+                            return "";
+                        }
+                    }.call();
+                }
+            }else if(isPrimitiveWrapper(type)) {
+                try {
+                    return wrapPrimitive(unwrapPrimitive(type, val));
+                } catch (ClassCastException e) {
+                    assert false: e.getMessage() + " wrapper val: "+val.getClass()+" wapper type: "+ type + new Callable<String>() {
+                        @Override
+                        public String call() {
+                            e.printStackTrace();
+                            return "";
+                        }
+                    }.call();
+                }
+            }
+        }
         if (type.isArray()) { // we need to return array
         	final Class<?> targetComp = type.getComponentType();
         	if(val.getClass().isArray()) { // we get array
@@ -110,18 +164,7 @@ final class Classes {
                     | IllegalArgumentException | InvocationTargetException e) {
             }
         }
-        if(val.getClass().isPrimitive() && isPrimitiveWrapper(type)) {
-        	try {
-                return wrapPrimitive(val);
-            } catch (ClassCastException e) {
-            }
-        }
-        if(type.isPrimitive() && isPrimitiveWrapper(val.getClass())) {
-        	try {
-                return unwrapPrimitive(val);
-            } catch (ClassCastException e) {
-            }
-        }
+        
         try {
             return type.cast(val);
         } catch (ClassCastException e) {
@@ -131,7 +174,27 @@ final class Classes {
                 "Could not find any way to convert " + val.getClass().getName() + " to " + type.getName());
     }
 
-    
+    public static Object convertPrimitiveType(Class<?> type, Object val) {
+        if (type == boolean.class) {
+            return (boolean) val;
+        } else if (type == int.class) {
+            return (int)val;
+        } else if (type == float.class) {
+            return (float) val;
+        } else if (type == double.class) {
+            return (double) val;
+        } else if (type == byte.class) {
+            return (byte)val;
+        } else if (type == short.class) {
+            return (short)val;
+        } else if (type == long.class) {
+            return (long)val;
+        } else if (type == char.class) {
+            return (char)val;
+        }
+        throw new UnsupportedOperationException(type.getName() + " is not primitive!");
+    }
+   
 
 	public static Object parseString(Class<?> type, String val) {
         if (type == Boolean.class) {
@@ -477,6 +540,9 @@ final class Classes {
     
     private static Object wrapPrimitive(Object value) {
     	Class<?> type = value.getClass();
+    	if(isPrimitiveWrapper(value.getClass())) {
+    	    return value;
+    	}
     	if(float.class.equals(type)) {
             return new Float((float) value);
         }else if(double.class.equals(type)) {
@@ -497,24 +563,163 @@ final class Classes {
     	throw new ClassCastException(type + " is not primitive!");
     }
     
-    private static Object unwrapPrimitive(Object value) {
+    private static Object unwrapPrimitive(Class<?> targetPrimitive,Object value) {
+        if(value.getClass().isPrimitive()) {
+            return convertPrimitiveType(targetPrimitive, value);
+        }
     	Class<?> type = value.getClass();
     	if(Float.class.equals(type)) {
-            return ((Float) value).floatValue();
+    	    if (targetPrimitive == boolean.class || targetPrimitive == Boolean.class) {
+                return 0 != ((Float) value).floatValue();
+            } else if (targetPrimitive == int.class || targetPrimitive == Integer.class) {
+                return (int) ((Float) value).floatValue();
+            } else if (targetPrimitive == float.class || targetPrimitive == Float.class) {
+                return (float) ((Float) value).floatValue();
+            } else if (targetPrimitive == double.class || targetPrimitive == Double.class) {
+                return (double) ((Float) value).floatValue();
+            } else if (targetPrimitive == byte.class || targetPrimitive == Byte.class) {
+                return (byte) ((Float) value).floatValue();
+            } else if (targetPrimitive == short.class || targetPrimitive == Short.class) {
+                return (short) ((Float) value).floatValue();
+            } else if (targetPrimitive == long.class || targetPrimitive == Long.class) {
+                return (long) ((Float) value).floatValue();
+            } else if (targetPrimitive == char.class || targetPrimitive == Character.class) {
+                return (char) ((Float) value).floatValue();
+            }
+    	    throw new ClassCastException(targetPrimitive + " is not primitive!");
         }else if(Double.class.equals(type)) {
-            return ((Double) value).doubleValue();
+            if (targetPrimitive == boolean.class || targetPrimitive == Boolean.class) {
+                return 0 != ((Double) value).doubleValue();
+            } else if (targetPrimitive == int.class || targetPrimitive == Integer.class) {
+                return (int) ((Double) value).doubleValue();
+            } else if (targetPrimitive == float.class || targetPrimitive == Float.class) {
+                return (float) ((Double) value).doubleValue();
+            } else if (targetPrimitive == double.class || targetPrimitive == Double.class) {
+                return (double) ((Double) value).doubleValue();
+            } else if (targetPrimitive == byte.class || targetPrimitive == Byte.class) {
+                return (byte) ((Double) value).doubleValue();
+            } else if (targetPrimitive == short.class || targetPrimitive == Short.class) {
+                return (short) ((Double) value).doubleValue();
+            } else if (targetPrimitive == long.class || targetPrimitive == Long.class) {
+                return (long) ((Double) value).doubleValue();
+            } else if (targetPrimitive == char.class || targetPrimitive == Character.class) {
+                return (char) ((Double) value).doubleValue();
+            }
+            throw new ClassCastException(targetPrimitive + " is not primitive!");
         }else if(Integer.class.equals(type)) {
-            return ((Integer) value).intValue();
+            if (targetPrimitive == boolean.class || targetPrimitive == Boolean.class) {
+                return 0 != ((Integer) value).intValue();
+            } else if (targetPrimitive == int.class || targetPrimitive == Integer.class) {
+                return (int) ((Integer) value).intValue();
+            } else if (targetPrimitive == float.class || targetPrimitive == Float.class) {
+                return (float) ((Integer) value).intValue();
+            } else if (targetPrimitive == double.class || targetPrimitive == Double.class) {
+                return (double) ((Integer) value).intValue();
+            } else if (targetPrimitive == byte.class || targetPrimitive == Byte.class) {
+                return (byte) ((Integer) value).intValue();
+            } else if (targetPrimitive == short.class || targetPrimitive == Short.class) {
+                return (short) ((Integer) value).intValue();
+            } else if (targetPrimitive == long.class || targetPrimitive == Long.class) {
+                return (long) ((Integer) value).intValue();
+            } else if (targetPrimitive == char.class || targetPrimitive == Character.class) {
+                return (char) ((Integer) value).intValue();
+            }
+            throw new ClassCastException(targetPrimitive + " is not primitive!");
         }else if(Short.class.equals(type)) {
-            return ((Short) value).shortValue();
+            if (targetPrimitive == boolean.class || targetPrimitive == Boolean.class) {
+                return 0 != ((Short) value).shortValue();
+            } else if (targetPrimitive == int.class || targetPrimitive == Integer.class) {
+                return (int) ((Short) value).shortValue();
+            } else if (targetPrimitive == float.class || targetPrimitive == Float.class) {
+                return (float) ((Short) value).shortValue();
+            } else if (targetPrimitive == double.class || targetPrimitive == Double.class) {
+                return (double) ((Short) value).shortValue();
+            } else if (targetPrimitive == byte.class || targetPrimitive == Byte.class) {
+                return (byte) ((Short) value).shortValue();
+            } else if (targetPrimitive == short.class || targetPrimitive == Short.class) {
+                return (short) ((Short) value).shortValue();
+            } else if (targetPrimitive == long.class || targetPrimitive == Long.class) {
+                return (long) ((Short) value).shortValue();
+            } else if (targetPrimitive == char.class || targetPrimitive == Character.class) {
+                return (char) ((Short) value).shortValue();
+            }
+            throw new ClassCastException(targetPrimitive + " is not primitive!");
         }else if(Byte.class.equals(type)) {
-            return ((Byte) value).byteValue();
+            if (targetPrimitive == boolean.class || targetPrimitive == Boolean.class) {
+                return 0 != ((Byte) value).byteValue();
+            } else if (targetPrimitive == int.class || targetPrimitive == Integer.class) {
+                return (int) ((Byte) value).byteValue();
+            } else if (targetPrimitive == float.class || targetPrimitive == Float.class) {
+                return (float) ((Byte) value).byteValue();
+            } else if (targetPrimitive == double.class || targetPrimitive == Double.class) {
+                return (double) ((Byte) value).byteValue();
+            } else if (targetPrimitive == byte.class || targetPrimitive == Byte.class) {
+                return (byte) ((Byte) value).byteValue();
+            } else if (targetPrimitive == short.class || targetPrimitive == Short.class) {
+                return (short) ((Byte) value).byteValue();
+            } else if (targetPrimitive == long.class || targetPrimitive == Long.class) {
+                return (long) ((Byte) value).byteValue();
+            } else if (targetPrimitive == char.class || targetPrimitive == Character.class) {
+                return (char) ((Byte) value).byteValue();
+            }
+            throw new ClassCastException(targetPrimitive + " is not primitive!");
         }else if(Character.class.equals(type)) {
-            return ((Character) value).charValue();
+            if (targetPrimitive == boolean.class || targetPrimitive == Boolean.class) {
+                return 0 != ((Character) value).charValue();
+            } else if (targetPrimitive == int.class || targetPrimitive == Integer.class) {
+                return (int) ((Character) value).charValue();
+            } else if (targetPrimitive == float.class || targetPrimitive == Float.class) {
+                return (float) ((Character) value).charValue();
+            } else if (targetPrimitive == double.class || targetPrimitive == Double.class) {
+                return (double) ((Character) value).charValue();
+            } else if (targetPrimitive == byte.class || targetPrimitive == Byte.class) {
+                return (byte) ((Character) value).charValue();
+            } else if (targetPrimitive == short.class || targetPrimitive == Short.class) {
+                return (short) ((Character) value).charValue();
+            } else if (targetPrimitive == long.class || targetPrimitive == Long.class) {
+                return (long) ((Character) value).charValue();
+            } else if (targetPrimitive == char.class || targetPrimitive == Character.class) {
+                return (char) ((Character) value).charValue();
+            }
+            throw new ClassCastException(targetPrimitive + " is not primitive!");
         }else if(Long.class.equals(type)) {
-            return ((Long) value).longValue();
+            if (targetPrimitive == boolean.class || targetPrimitive == Boolean.class) {
+                return 0 != ((Long) value).longValue();
+            } else if (targetPrimitive == int.class || targetPrimitive == Integer.class) {
+                return (int) ((Long) value).longValue();
+            } else if (targetPrimitive == float.class || targetPrimitive == Float.class) {
+                return (float)  ((Long) value).longValue();
+            } else if (targetPrimitive == double.class || targetPrimitive == Double.class) {
+                return (double)  ((Long) value).longValue();
+            } else if (targetPrimitive == byte.class || targetPrimitive == Byte.class) {
+                return (byte) ((Long) value).longValue();
+            } else if (targetPrimitive == short.class || targetPrimitive == Short.class) {
+                return (short) ((Long) value).longValue();
+            } else if (targetPrimitive == long.class || targetPrimitive == Long.class) {
+                return (long) ((Long) value).longValue();
+            } else if (targetPrimitive == char.class || targetPrimitive == Character.class) {
+                return (char) ((Long) value).longValue();
+            }
+            throw new ClassCastException(targetPrimitive + " is not primitive!");
         }else if(Boolean.class.equals(type)) {
-            return ((Boolean) value).booleanValue();
+            if (targetPrimitive == boolean.class || targetPrimitive == Boolean.class) {
+                return (boolean) ((Boolean) value).booleanValue();
+            } else if (targetPrimitive == int.class || targetPrimitive == Integer.class) {
+                return (int) (((Boolean) value).booleanValue()?1:0);
+            } else if (targetPrimitive == float.class || targetPrimitive == Float.class) {
+                return (float) (((Boolean) value).booleanValue()?1:0);
+            } else if (targetPrimitive == double.class || targetPrimitive == Double.class) {
+                return (double) (((Boolean) value).booleanValue()?1:0);
+            } else if (targetPrimitive == byte.class || targetPrimitive == Byte.class) {
+                return (byte) (((Boolean) value).booleanValue()?1:0);
+            } else if (targetPrimitive == short.class || targetPrimitive == Short.class) {
+                return (short) (((Boolean) value).booleanValue()?1:0);
+            } else if (targetPrimitive == long.class || targetPrimitive == Long.class) {
+                return (long) (((Boolean) value).booleanValue()?1:0);
+            } else if (targetPrimitive == char.class || targetPrimitive == Character.class) {
+                return (char) (((Boolean) value).booleanValue()?1:0);
+            }
+            throw new ClassCastException(targetPrimitive + " is not primitive!");
         }
     	throw new ClassCastException(type + " is not primitive wrapper!");
     }
@@ -527,6 +732,34 @@ final class Classes {
     			||Character.class.equals(c)
     			||Long.class.equals(c)
     			||Boolean.class.equals(c);
+    }
+    
+    private static Class<?> primitiveWrapperToPrimitive(Class<?> c) {
+        if(Float.class.equals(c)) {
+            return float.class;
+        }
+        if(Double.class.equals(c)) {
+            return double.class;
+        }
+        if(Integer.class.equals(c)) {
+            return int.class;
+        }
+        if(Short.class.equals(c)) {
+            return short.class;
+        }
+        if(Byte.class.equals(c)) {
+            return byte.class;
+        }
+        if(Character.class.equals(c)) {
+            return char.class;
+        }
+        if(Long.class.equals(c)) {
+            return long.class;
+        }
+        if(Boolean.class.equals(c)) {
+            return boolean.class;
+        }
+        throw new ClassCastException(c + " is not primitive wrapper!");
     }
     
 	private static Object convertListToArray(Class<?> targetComp, @SuppressWarnings("rawtypes") List genericList) {

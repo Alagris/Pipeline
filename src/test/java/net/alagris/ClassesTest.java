@@ -52,6 +52,35 @@ public class ClassesTest {
 		assertArrayEquals(strings, (String[]) Classes.parseObject(String[].class, objectsA));
 		assertArrayEquals(objects, (Object[]) Classes.parseObject(Object[].class, objectsA));
 	}
+	
+	@Test
+    public void convertObjectArrays() {
+        Integer[] integers = {0, 1 ,4 ,75, -54};
+        int[] ints = {0, 1 ,4 ,75, -54};
+        Character[] characters = {0, 1 ,4 ,75, (char)-54};
+        char[] chars = {0, 1 ,4 ,75, (char)-54};
+        Boolean[] booleans = {false,true ,true ,true, true};
+        boolean[] bools = {false,true ,true ,true, true};
+        Float[] floatsC = {0f, 1f ,4f ,75f, -54f};
+        float[] floats = {0f, 1f ,4f ,75f, -54f};
+        
+        List<Integer> integersA = Arrays.asList(0, 1 ,4 ,75, -54);
+        List<Float> floatsCA = Arrays.asList(0f, 1f ,4f ,75f, -54f);
+        assertArrayEquals(floats, (float[]) Classes.parseObject(float[].class, floats), 0);
+        assertArrayEquals(floatsC, (Float[]) Classes.parseObject(Float[].class, floats));
+        assertArrayEquals(bools, (boolean[]) Classes.parseObject(boolean[].class, floats));
+        assertArrayEquals(booleans, (Boolean[]) Classes.parseObject(Boolean[].class, floats));
+        assertArrayEquals(chars, (char[]) Classes.parseObject(char[].class, floats));
+        assertArrayEquals(characters, (Character[]) Classes.parseObject(Character[].class, floats));
+        
+        assertArrayEquals(floats, (float[]) Classes.parseObject(float[].class, ints), 0);
+        assertArrayEquals(floatsC, (Float[]) Classes.parseObject(Float[].class, ints));
+        assertArrayEquals(bools, (boolean[]) Classes.parseObject(boolean[].class, ints));
+        assertArrayEquals(booleans, (Boolean[]) Classes.parseObject(Boolean[].class, ints));
+        assertArrayEquals(chars, (char[]) Classes.parseObject(char[].class, ints));
+        assertArrayEquals(characters, (Character[]) Classes.parseObject(Character[].class, ints));
+        
+    }
 
 	private <T> void assertListsEquals(List<T> a, List<T> b) {
 		Iterator<T> ia = a.iterator();

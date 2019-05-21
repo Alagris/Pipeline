@@ -12,9 +12,9 @@ apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
 
-version = '1.11'
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+version = '1.12'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 // In this section you declare where to find the dependencies of your project
 repositories {
