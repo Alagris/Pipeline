@@ -77,7 +77,10 @@ Then you need to create classes ``Preprocessor``, ``Branching``, ``Uppercase``, 
 Or if you wish to make a pipe optional (so you can use ``"enable":"false"`` to temporarily disable it) just extend ``OptionalPipe``
 
     public class Preprocessor extends OptionalPipe<String> {
-    
+
+        @PipeID
+        String myID;
+        
         @Config
         String suffix;
     
@@ -127,6 +130,8 @@ Pipeline will automatically parse JSON into the following types:
 
 
 If you wish to use ``@Config`` for any other type you should parse it in your own ``GlobalConfig`` (read below).
+
+Fields annotated with ``@PipeID`` will be injected with value of "id" specified in JSON. They must be of String type and you are not allowed to mix ``@PipeID`` with ``@Config``.
 
 Pipelines can branch into subpipelines. This is what ``"alternatives":{}`` is for. Inside you put ``"BRANCH_NAME":[{},{},...]`` that specify possible subpipelines to follow. There are 2 standard branch names (they are a nice convention but you are not limited to them): "left" and "right". In order to branch to an alternative pipeline you need to use ``Output`` class.
 
