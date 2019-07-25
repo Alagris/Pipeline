@@ -134,7 +134,7 @@ public class BlueprintLoader {
 					@SuppressWarnings("unchecked")
 					final Class<Pipe<Cargo>> pipeClass = (Class<Pipe<Cargo>>) Class.forName(className);
 					final Pipe<Cargo> pipe = pipeClass.getDeclaredConstructor().newInstance();
-					injectFields(globalConfig, cnfg, pipe, pipeClass);
+					injectFields(globalConfig, cnfg, pipe, pipeClass, id);
 					try {
 						pipe.onLoad();
 					} catch (Exception e) {
@@ -160,7 +160,7 @@ public class BlueprintLoader {
 			}
 
 			private void injectFields(final C globalConfig, final Map<String, Object> cnfg, final Pipe<Cargo> pipe,
-					final Class<Pipe<Cargo>> pipeClass) {
+					final Class<Pipe<Cargo>> pipeClass, final String id) {
 				ReflectionUtils.doWithFields(pipeClass, new FieldCallback() {
 
 					@SuppressWarnings("unchecked")
@@ -180,15 +180,35 @@ public class BlueprintLoader {
 
 					@Override
 					public void doFor(Field field) {
-						Config annotation = field.getAnnotation(Config.class);
-						if (annotation != null) {
+						Config configAnnotation = field.getAnnotation(Config.class);
+						PipeID nameAnnotation = field.getAnnotation(PipeID.class);
+						if (configAnnotation != null) {
+						    if(nameAnnotation!=null) {
+						        throw new RuntimeException(
+                                        "Field " + pipeClass.getName() + "." + field.getName()+" has both @Config and @PipeName. Choose only one of them!");
+						    }
 							try {
-								setField(field.getType(), field, annotation);
+								setField(field.getType(), field, configAnnotation);
 							} catch (Exception e) {
 								throw new RuntimeException(
 										"Failed injecting " + pipeClass.getName() + "." + field.getName(), e);
 							}
+						}else {
+						    if(nameAnnotation!=null) {
+						        if(field.getType().equals(String.class)){
+						            try {
+                                        field.set(pipe, id);
+                                    } catch (IllegalArgumentException | IllegalAccessException e) {
+                                        throw new RuntimeException(
+                                                "Failed injecting " + pipeClass.getName() + "." + field.getName(), e);
+                                    }
+						        }else {
+						            throw new RuntimeException(
+	                                        "Field " + pipeClass.getName() + "." + field.getName()+" has @PipeName therefore it must be of String type!");
+						        }
+						    }
 						}
+						
 					}
 
 					private Object makeObject(final C globalConfig, Field field, Config annotation) {

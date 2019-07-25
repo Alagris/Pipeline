@@ -64,6 +64,9 @@ public class BlueprintTypedLoaderTest {
 		assertEquals("dynPaths wrong!", "bugs", preprocessor.dynPaths.get(2));
 		assertEquals("dynPaths wrong!", 3, preprocessor.dynPaths.size());
 		
+		assertEquals("id wrong!", "Preprocessor-id", preprocessor.name);
+		assertEquals("id wrong!", "Preprocessor-id", preprocessor.nameDuplicate);
+		
 		HashMap<String, Object> dictionary = (HashMap<String, Object>) preprocessor.dictionary;
 		assertEquals("dictionary wrong!", "b", dictionary.get("a"));
 		@SuppressWarnings("unchecked")

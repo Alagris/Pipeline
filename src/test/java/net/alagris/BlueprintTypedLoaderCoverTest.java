@@ -53,6 +53,8 @@ public class BlueprintTypedLoaderCoverTest {
 		assertEquals("dynPaths wrong!", "bugs", preprocessor.dynPaths.get(2));
 		assertEquals("dynPaths wrong!", 3, preprocessor.dynPaths.size());
 		assertEquals("Suffix wrong!", "-new", preprocessor.suffix);
+		assertEquals("id wrong!", "Preprocessor-id", preprocessor.name);
+        assertEquals("id wrong!", "Preprocessor-id", preprocessor.nameDuplicate);
 	}
 
 	@Test

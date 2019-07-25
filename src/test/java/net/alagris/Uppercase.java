@@ -6,6 +6,9 @@ public class Uppercase implements Pipe<String> {
 
 	@Config
 	Locale locale = Locale.getDefault();
+	
+	@PipeID
+	String name;
 
 	@Override
 	public Output<String> process(String input) {

@@ -5,6 +5,12 @@ import java.util.Map;
 
 public class Preprocessor extends OptionalPipe<String> {
 
+    @PipeID
+    String name;
+    
+    @PipeID
+    String nameDuplicate;
+    
 	@Config
 	String suffix;
 
