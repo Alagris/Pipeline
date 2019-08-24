@@ -2,7 +2,7 @@
 	"pipeline": [
 		{
 			"name": "InstaFail",
-			"id": "Fail-id"
+			"id": "Fail_id"
 		}
 	]
 }

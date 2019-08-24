@@ -15,7 +15,7 @@ public class BlueprintAliasedCoverTest {
 	Group<String> gr;
 	Blueprint<GlobalCnfg> blueprint;
 
-	public BlueprintAliasedCoverTest() throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+	public BlueprintAliasedCoverTest() throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
 		BlueprintTypedLoader<String, GlobalCnfg> loader = new BlueprintTypedLoader<String, GlobalCnfg>(
 				BlueprintAliasedCoverTest.class, String.class, GlobalCnfg.class);
 		blueprint = loader.load(TestConstants.ALIASED);
@@ -27,13 +27,13 @@ public class BlueprintAliasedCoverTest {
 	public void parsing() {
 		HashMap<String, ArrayList<Node>> nodes = blueprint.collectByAlias();
 		ArrayList<Node> preprocessors = nodes.get("preprocessors");
-		assertNotNull(find(preprocessors,"Preprocessor-id0"));
-		assertNotNull(find(preprocessors,"Preprocessor-id1"));
-		assertNotNull(find(preprocessors,"Preprocessor-id2"));
+		assertNotNull(find(preprocessors,"Preprocessor_id0"));
+		assertNotNull(find(preprocessors,"Preprocessor_id1"));
+		assertNotNull(find(preprocessors,"Preprocessor_id2"));
 		ArrayList<Node> truecasers = nodes.get("truecasers");
-		assertNotNull(find(truecasers,"Lowercase-id"));
-		assertNotNull(find(truecasers,"Truecaser-id"));
-		assertNotNull(find(truecasers,"Uppercase-id"));
+		assertNotNull(find(truecasers,"Lowercase_id"));
+		assertNotNull(find(truecasers,"Truecaser_id"));
+		assertNotNull(find(truecasers,"Uppercase_id"));
 		
 	}
 

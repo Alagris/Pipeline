@@ -20,7 +20,7 @@
         "pipeline": [
             {
                 "name": "Preprocessor",
-                "id": "Preprocessor-id",
+                "id": "Preprocessor_id",
                 "config": {
                     "suffix_": "-t",
                     "enabled": "true"
@@ -28,7 +28,7 @@
             },
             {
                 "name": "Branching",
-                "id": "Branching-id",
+                "id": "Branching_id",
                 "config": {
                     "num1": "1",
                     "num2": "2"
@@ -37,13 +37,13 @@
                     "left": [
                         {
                             "name": "Uppercase"
-                            "id": "Uppercase-id",
+                            "id": "Uppercase_id",
                         }
                     ],
                     "right": [
                         {
                             "name": "Lowercase"
-                            "id": "Lowercase-id",
+                            "id": "Lowercase_id",
                         }
                     ]
                 }
@@ -239,23 +239,23 @@ Sometimes you might wish to reuse exiString pipeline with some tiny configuratio
             ]
         },
         "cover": {
-            "Preprocessor-id": {
+            "Preprocessor_id": {
                 "config": {
                     "suffix": "-new"
                 }
             },
-            "Branching-id": {
+            "Branching_id": {
                 "config": {
                     "left": "10",
                     "right": "20"
                 }
             },
-            "Uppercase-id": {
+            "Uppercase_id": {
                 "config": {
                     "enabled": "false"
                 }
             },
-            "Lowercase-id": {
+            "Lowercase_id": {
                 "config": {
                     "enabled": "false"
                 }
@@ -267,6 +267,201 @@ You can apply this cover with a method like this:
 
     blueprint.applyCover(new File("path/to/cover.json"), GlobalCnfg.class);
     
+   
+### Aliases
+
+A very useful feature that supplements IDs is aliases. Every pipe can be assigned to zero or more of them. Here is how:
+
+    "aliases": { // here you define allowed aliases
+        "preprocessors": { // alias name
+            "fields": [ // specify which fields can be affected by this alias (IMPORTANT: At this moment this feature is ignored. Specifying those fields has no effect on anything whatsoever)
+                "enabled"
+            ]
+        },
+        "suffixed": {
+            "fields": [
+                "enabled",
+                "suffix"
+            ]
+        }
+    },
+    "pipeline": [
+        ...
+        {
+            "name": "Preprocessor",
+            "id": "Preprocessor_id",
+            "config": {
+                "suffix": "-t1"
+            },
+            "aliases": [
+                "preprocessors",
+                "suffixed",
+            ]
+        }
+        ...
+    ]
+    
+Then you can apply covers and use aliases just like you use IDs 
+(except that you need to put "alias" keyword before them). 
+The only difference is that while ID affects only one single pipe 
+(and you can cover any configuration field you wish), 
+an alias affects every aliased pipe but restricts which fields can 
+be modified. Notice that if one pipe is affected by multiple aliases and/or ID,
+then they are applied in the order in which they were placed in 
+``"cover": {...}``
+
+IMPORTANT: not every string is a valid candidate for alias or ID. They should contain only characters a-z A-Z 0-9 _ and they cannot start with digit!
+    
+#### Selectors
+
+Sometimes IDs and aliases are not enough. For more complex tasks use selectors. Their syntax is as follows:
+
+Logical operators just like in java:
+
+* &&
+* ||
+* !
+
+Comparision operators:
+
+* <
+* >
+* <=
+* >=
+* ==
+
+References to pipes:
+
+* * - wildcard
+* someId - id of pipe
+* **alias** someAlias - alias of pipe
+* **name** someName - name of pipe 	
+ 
+Important: normally you use short names relative to package but it's possible to 
+specify absolute.path.to.JavaClass too. But cover has no information of 
+default package, therefore those two selectors are considered different even 
+though it could be the case that they point to the same java class:
+
+    JavaClass
+
+    absolute.path.to.JavaClass
+    
+Offsets:
+
+* numerals
+* +
+* - 
+
+Reference together with offsets can point to some pipe relatively:
+
+    pipeID + 1  //match pipe after the one whose is pipeID 
+    pipeID - 1  //match pipe before the one whose is pipeID
+    pipeID + 2  //match pipe placed 2 to the the right after the one whose is pipeID
+    alias preprocessors   //match all pipes aliased with preprocessors
+    alias preprocessors + 1   //match all pipes placed after those aliased with preprocessors
+    name Preprocessor   // match all pipes with type of Preprocessor
+    
+You can combine such references into logical expressions with comparators:
+
+    pipeID + 1 < *
+    * < pipeID + 1
+    pipeID - 3 + 1 <= *
+    
+Important! This is illegal:
+
+    pipeID < pipeID2  //this check is useless
+    pipeID < * + 1   // write "pipeID -1 < * " instead
+	1 < 0    //this check is useless
+	* < *    //this makes little sense
+    
+And you may also add logical operators:
+
+    Preprocessor_id < * && * < Another_id // all pipes between Preprocessor_id and Another_id
+    Preprocessor_id > * || * < 3 // all pipes after Preprocessor_id or before fourth (indexing starts from 0) pipe in root of pipeline
+    Preprocessor_id == *  // equivalent to just writing Preprocessor_id by itself
+    !Preprocessor_id  //everything but Preprocessor_id
+    (id || id2) && (id3 || id4) //you can use brackets
+ 
+You also need to keep in ming that while it looks like a very mathematical language, it actually has special meaning. For example:
+
+    X < * is not equivalent to !(X >= *) 
+    
+because X < * means:
+
+    all pipes that get executed after X 
+    
+and X >= * means:
+
+    all pipes that get executed before X or are X themselves
+    
+And when you introduce branching into your pipeline, you suddenly introduce pipes that are neither executed before nor after some specific pipes.
+
+Also, in case of branching the offsets X+4 don't go out of scope of given branch alternative. Let's say you have such pipeline:
+ 
+
+    {
+        "pipeline": [
+            {
+                "name": "Branching",
+                "id": "X"
+                "alternatives": {
+                    "single": [
+                        {
+                            "name": "Uppercase"
+                            "id": "Y",
+                        },
+                        {
+                            "name": "Lowercase"
+                            "id": "Z",
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Trim"
+                "id": "W",
+            }
+        ]
+    }
+    
+using selector Y+1 you may select Z, but using Z+1 you will select nothing!
+Only pipes in the same scope can be accessed with offsets! Similarly it goes for absolute offsets.
+Pipe X has absolute offset 0, W has offset 1 but Y and Z don't have any absolute offset! 
+   
+    
+Finally, you can put all those selectors in cover as you would normally put IDs or aliases:
+
+
+    {
+        "global": {
+        },
+        "cover": {
+            "*<Preprocessor_id": {
+                "config": {
+                    "suffix": "-new"
+                }
+            },
+            "!Branching_id": {
+                "config": {
+                    "left": "10",
+                    "right": "20"
+                }
+            },
+            "Uppercase_id < * && * < Lowercase_id": {
+                "config": {
+                    "enabled": "false"
+                }
+            },
+            "Lowercase_id<=*": {
+                "config": {
+                    "enabled": "false"
+                }
+            }
+        }
+    }
+
+All selectors are applied in the order in which they appear in JSON.
+
 #### Cover from command line parameters
 
 There is a nice and simple utility called ``CommandLineToCover``. It allows you to parse incoming command line parameters and turn them into ``BlueprintCover``. 
@@ -284,47 +479,12 @@ There is a nice and simple utility called ``CommandLineToCover``. It allows you 
     
 The format for such parameters is:
 
-    $java -jar myApp.jar globalCnfg1=foo globalCnfg2=bar ... --pipeID1 pipe1Param1="[a, b, c]" pipe1Param2="[4, 5, 6]" ... --pipeID2 pipe2Param1=baz pipe2Param2="foo bar" ...
+    $java -jar myApp.jar globalCnfg1=foo globalCnfg2=bar ... --selector1 pipe1Param1="[a, b, c]" pipe1Param2="[4, 5, 6]" ... --selector2 pipe2Param1=baz pipe2Param2="foo bar" ...
     
 Example:
 
-    $java -jar myApp.jar paths="[my/path, /etc]" lang=en-GB --Preprocessor-id suffix="su fix" paths="[/try/hard]" --Branching-id left=X right=Y
-    
-### Aliases
-
-A very useful feature that suppliments IDs is aliases. Every pipe can be assigned to zero or more of them. Here is how:
-
-    "aliases": { // here you define allowed aliases
-        "preprocessors": { // alias name
-            "fields": [ // specify which fields can be affected by this alias
-                "enabled"
-            ]
-        },
-        "suffixed": {
-            "fields": [
-                "enabled",
-                "suffix"
-            ]
-        }
-    },
-    "pipeline": [
-        ...
-        {
-            "name": "Preprocessor",
-            "id": "Preprocessor-id",
-            "config": {
-                "suffix": "-t1"
-            },
-            "aliases": [
-                "preprocessors",
-                "suffixed",
-            ]
-        }
-        ...
-    ]
-    
-Then you can apply covers and use aliases just like you use IDs. The only difference is that while ID affects only one single pipe (and you can cover any configuration field you wish), an alias affects every aliased pipe but restricts which fields can be modified. Notice that if one pipe is affected by multiple aliases, then they are applied in the order in which they were defined in ``"aliases": {...}`` (and ID-specific covers are applied at the very end, after all aliases)
-    
+    $java -jar myApp.jar paths="[my/path, /etc]" lang=en-GB --Preprocessor_id suffix="su fix" paths="[/try/hard]" --"*<Branching_id" left=X right=Y
+ 
 ### Tests
 
 ##### Generic example
@@ -334,18 +494,18 @@ First you define test JSON: (remember to remove comments as they are not valid j
     {
         "input": "aB-43",  //deserialized with CargoBuilder<Cargo>
         "test": {
-            "Preprocessor-id": {
+            "Preprocessor_id": {
                 "input": "aB-43" //deserialized with TestUnit
             },
-            "Branching-id": {
+            "Branching_id": {
                 "input": "aB-43-t", //deserialized with TestUnit
                 "output": "AB-43-T" //deserialized with TestUnit
             },
-            "Truecaser-id": {
+            "Truecaser_id": {
                 "input": "",
                 "output": ""
             },
-            "Lowercase-id": {
+            "Lowercase_id": {
                 "input": "",
                 "output": ""
             }
@@ -392,7 +552,7 @@ json:
     {
         "input": "blah",
         "test": {
-            "Preprocessor-id": {
+            "Preprocessor_id": {
                 "output": {
                     "stringA": "nice",
                     "stringB": "420",
@@ -576,7 +736,7 @@ In order to trigger such branching you need to use ``"runAllAlternatives": "true
 
     {
         "name": "Branching",
-        "id": "Branching-id",
+        "id": "Branching_id",
         "runAllAlternatives": "true",
         "config": {
             ...

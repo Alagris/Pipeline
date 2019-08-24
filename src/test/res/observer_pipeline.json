@@ -5,7 +5,7 @@
 	"pipeline": [
 		{
 			"name": "Observer",
-			"id": "Observer-id",
+			"id": "Observer_id",
 			"config": {
 				
 			}

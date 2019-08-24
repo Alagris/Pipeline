@@ -1,12 +1,12 @@
 {
 	"cover": {
-		"preprocessors": {
+		"alias preprocessors": {
 			"config": {
 				"suffix": "-s",
 				"enabled": "true"
 			}
 		},
-		"truecasers": {
+		"alias truecasers": {
 			"config": {
 				"enabled": "false"
 			}

@@ -1,10 +1,8 @@
 package net.alagris;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import org.junit.Test;
 
@@ -18,7 +16,7 @@ public class BlueprintTypedLoaderAbsTest {
 	Blueprint<GlobalCnfg> blueprint;
 
 	public BlueprintTypedLoaderAbsTest()
-			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
 		BlueprintTypedLoader<String, GlobalCnfg> loader = new BlueprintTypedLoader<String, GlobalCnfg>(
 		        BlueprintTypedLoaderAbsTest.class, String.class, GlobalCnfg.class);
 		blueprint = loader.load(TestConstants.DEEPER);

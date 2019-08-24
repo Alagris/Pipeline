@@ -7,3 +7,6 @@ bin
 build
 bin/
 Pipeline
+target/
+generated-src/
+.project

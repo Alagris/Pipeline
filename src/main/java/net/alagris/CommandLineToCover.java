@@ -27,7 +27,7 @@ public class CommandLineToCover {
 				}
 				currentNode = new NodeCover();
 				if (cover.getCover().put(id, currentNode) != null) {
-					throw new DuplicateIdException("ID \"" + id + "\" is duplicated!");
+					throw new DuplicateIdException("selector \"" + id + "\" is duplicated!");
 				}
 			} else { // new parameter
 				int equalsSign = arg.indexOf('=');
@@ -55,7 +55,6 @@ public class CommandLineToCover {
 			}
 
 		}
-//		
-		return cover;
+		return BlueprintCover.afterParsing(cover);
 	}
 }

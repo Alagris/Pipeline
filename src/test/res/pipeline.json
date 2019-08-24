@@ -14,7 +14,7 @@
 	"pipeline": [
 		{
 			"name": "Preprocessor",
-			"id": "Preprocessor-id",
+			"id": "Preprocessor_id",
 			"config": {
 				"suffix": "-t",
 				"enabled": "true",
@@ -32,7 +32,7 @@
 		},
 		{
 			"name": "Branching",
-			"id": "Branching-id",
+			"id": "Branching_id",
 			"config": {
 				"left": "1",
 				"right": "2"
@@ -41,11 +41,11 @@
 				"left": [
 					{
 						"name": "Lowercase",
-						"id": "Lowercase-id"
+						"id": "Lowercase_id"
 					},
 					{
 						"name": "UppercaseFirst",
-						"id": "Truecaser-id"
+						"id": "Truecaser_id"
 					}
 				],
 				"right": [

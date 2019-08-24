@@ -3,8 +3,11 @@ package net.alagris;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,14 +19,33 @@ import com.fasterxml.jackson.databind.ObjectReader;
  * to use Blueprint you should convert it to (immutable) Group. BlueprintLoader
  * allows for such operations.
  */
+@JsonIgnoreProperties({ "selectors" })
 public class BlueprintCover<T extends GlobalConfig> {
 	private T global;
 
-	private HashMap<String, NodeCover> cover = new HashMap<>();
+	private LinkedHashMap<String, NodeCover> cover = new LinkedHashMap<>();
 
-	private static <T extends GlobalConfig> BlueprintCover<T> afterParsing(BlueprintCover<T> blueprint) {
+	private static class SelectorAndCover {
+		Selector selector;
+		NodeCover cover;
+
+		public SelectorAndCover(String selector, NodeCover cover) {
+			this.cover = cover;
+			this.selector = Selector.compile(selector);
+		}
+
+	}
+
+	private ArrayList<SelectorAndCover> selectors;
+
+	static <T extends GlobalConfig> BlueprintCover<T> afterParsing(BlueprintCover<T> blueprint) {
 		if (blueprint.getGlobal() != null)
 			blueprint.getGlobal().onLoad();
+
+		blueprint.selectors = new ArrayList<>(blueprint.cover.size());
+		for (Entry<String, NodeCover> entry : blueprint.cover.entrySet()) {
+			blueprint.selectors.add(new SelectorAndCover(entry.getKey(), entry.getValue()));
+		}
 		return blueprint;
 	}
 
@@ -32,7 +54,7 @@ public class BlueprintCover<T extends GlobalConfig> {
 		BlueprintCover<T> blueprint = makeReader(config).readValue(in);
 		return afterParsing(blueprint);
 	}
-	
+
 	public static <T extends GlobalConfig> BlueprintCover<T> load(File f, Class<T> config)
 			throws JsonProcessingException, IOException {
 		BlueprintCover<T> blueprint = makeReader(config).readValue(f);
@@ -69,12 +91,24 @@ public class BlueprintCover<T extends GlobalConfig> {
 		this.global = global;
 	}
 
-	public HashMap<String, NodeCover> getCover() {
+	LinkedHashMap<String, NodeCover> getCover() {
 		return cover;
 	}
 
-	public void setCover(HashMap<String, NodeCover> cover) {
+	void setCover(LinkedHashMap<String, NodeCover> cover) {
 		this.cover = cover;
 	}
 
+	public <Cnfg extends GlobalConfig> void applyToBlueprint(final Blueprint<Cnfg> blueprint) {
+		if (getGlobal() != null && blueprint.getGlobal() != null) {
+			blueprint.getGlobal().applyCover(getGlobal());
+		}
+		for (SelectorAndCover selectorAndCover : selectors) {
+			blueprint.forEachSelected(selectorAndCover.selector, n -> {
+				n.applyCover(selectorAndCover.cover);
+				return null;
+			});
+		}
+
+	}
 }

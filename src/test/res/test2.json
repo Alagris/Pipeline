@@ -3,18 +3,18 @@
        "str":"That's the spirit!"
     },
 	"test": {
-		"Preprocessor-id": {
+		"Preprocessor_id": {
 			"input": "That's the spirit!"
 		},
-		"Branching-id": {
+		"Branching_id": {
 			"input": "That's the spirit!-t",
 			"output": "THAT'S THE SPIRIT!-T"
 		},
-		"Truecaser-id": {
+		"Truecaser_id": {
 			"input": "",
 			"output": ""
 		},
-		"Lowercase-id": {
+		"Lowercase_id": {
 			"input": "",
 			"output": ""
 		}

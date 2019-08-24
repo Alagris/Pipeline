@@ -1,0 +1,60 @@
+{
+	"cover": {
+		"* < Preprocessor_id": {
+			"config": {
+				"suffix": "-new"
+			}
+		},
+		"Preprocessor_id < *": {
+			"config": {
+				"suffix": "-new"
+			}
+		},
+		"Preprocessor_id + 1": {
+			"config": {
+				"suffix": "-new"
+			}
+		},
+		"Preprocessor_id - 5": {
+			"config": {
+				"suffix": "-new"
+			}
+		},
+		"Preprocessor_id < * < Branching_id": {
+			"config": {
+				"suffix": "-new"
+			}
+		},
+		"Preprocessor_id || Branching_id": {
+			"config": {
+				"suffix": "-new"
+			}
+		},
+		"Preprocessor_id + 1 || Branching_id + 3": {
+			"config": {
+				"suffix": "-new"
+			}
+		},
+		" ! ( Preprocessor_id + 1 || Branching_id - 1 )": {
+			"config": {
+				"suffix": "-new"
+			}
+		},
+		"Branching_id": {
+			"config": {
+				"left": "10",
+				"right": "20"
+			}
+		},
+		"Truecaser_id": {
+			"config": {
+				"enabled": false
+			}
+		},
+		"Lowercase_id": {
+			"config": {
+				"enabled": "false"
+			}
+		}
+	}
+}

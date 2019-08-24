@@ -62,36 +62,36 @@ public class BlueprintLoader {
 
 	public <T, C extends GlobalConfig> Group<T> make(InputStream in, Class<T> cargo, Class<C> config,
 			ProcessingCallback<T> processing, Callbacks<T> callbacks)
-			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
 		return make(Blueprint.load(in, config), cargo, processing, callbacks);
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(InputStream in, Class<T> cargo, Class<C> config,
 			Callbacks<T> callbacks)
-			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
 		return make(Blueprint.load(in, config), cargo, callbacks);
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(String json, Class<T> cargo, Class<C> config,
 			ProcessingCallback<T> processing, Callbacks<T> callbacks)
-			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
 		return make(Blueprint.load(json, config), cargo, processing, callbacks);
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(String json, Class<T> cargo, Class<C> config,
 			Callbacks<T> callbacks)
-			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
 		return make(Blueprint.load(json, config), cargo, callbacks);
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(File f, Class<T> cargo, Class<C> config,
 			ProcessingCallback<T> processing, Callbacks<T> callbacks)
-			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
 		return make(Blueprint.load(f, config), cargo, processing, callbacks);
 	}
 
 	public <T, C extends GlobalConfig> Group<T> make(File f, Class<T> cargo, Class<C> config, Callbacks<T> callbacks)
-			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
 		return make(Blueprint.load(f, config), cargo, callbacks);
 	}
 
@@ -111,7 +111,7 @@ public class BlueprintLoader {
 	 * IMPORTANT!! Remember to always call blueprint.getGlobal().onMake(); before
 	 * executing this method
 	 **/
-	private <Cargo, C extends GlobalConfig> Group<Cargo> make(ArrayList<Node> pipeline, final Class<Cargo> cargo,
+	private <Cargo, C extends GlobalConfig> Group<Cargo> make(Pipeline pipeline, final Class<Cargo> cargo,
 			final C globalConfig, final ProcessingCallback<Cargo> processing, final LoadFailCallback loadFailCallback,
 			final PipeLog<Cargo> logger) {
 
@@ -151,9 +151,9 @@ public class BlueprintLoader {
 
 			private HashMap<String, Group<Cargo>> makeAlternatives(final Class<Cargo> cargo, final C globalConfig,
 					Node f) {
-				return HashMaps.convert(new Converter<ArrayList<Node>, Group<Cargo>>() {
+				return HashMaps.convert(new Converter<Pipeline, Group<Cargo>>() {
 					@Override
-					public Group<Cargo> convert(ArrayList<Node> f) {
+					public Group<Cargo> convert(Pipeline f) {
 						return make(f, cargo, globalConfig, processing, loadFailCallback, logger);
 					}
 				}, f.getAlternatives());

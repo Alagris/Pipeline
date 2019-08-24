@@ -17,7 +17,7 @@ public class BlueprintAliasedTest {
 	Group<String> gr;
 	Blueprint<GlobalCnfg> blueprint;
 
-	public BlueprintAliasedTest() throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+	public BlueprintAliasedTest() throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
 		BlueprintTypedLoader<String, GlobalCnfg> loader = new BlueprintTypedLoader<String, GlobalCnfg>(
 				BlueprintAliasedTest.class, String.class, GlobalCnfg.class);
 		blueprint = loader.load(TestConstants.ALIASED);
@@ -30,13 +30,13 @@ public class BlueprintAliasedTest {
 	public void parsing() {
 		HashMap<String, ArrayList<Node>> nodes = blueprint.collectByAlias();
 		ArrayList<Node> preprocessors = nodes.get("preprocessors");
-		assertEquals(find(preprocessors,"Preprocessor-id0").getConfig().get("suffix"),"-s");
-		assertEquals(find(preprocessors,"Preprocessor-id1").getConfig().get("suffix"),"-s");
-		assertEquals(find(preprocessors,"Preprocessor-id2").getConfig().get("suffix"),"-s");
+		assertEquals(find(preprocessors,"Preprocessor_id0").getConfig().get("suffix"),"-s");
+		assertEquals(find(preprocessors,"Preprocessor_id1").getConfig().get("suffix"),"-s");
+		assertEquals(find(preprocessors,"Preprocessor_id2").getConfig().get("suffix"),"-s");
 		ArrayList<Node> truecasers = nodes.get("truecasers");
-		assertEquals(find(truecasers,"Lowercase-id").getConfig().get("enabled"),"false");
-		assertEquals(find(truecasers,"Truecaser-id").getConfig().get("enabled"),"false");
-		assertEquals(find(truecasers,"Uppercase-id").getConfig().get("enabled"),"false");
+		assertEquals(find(truecasers,"Lowercase_id").getConfig().get("enabled"),"false");
+		assertEquals(find(truecasers,"Truecaser_id").getConfig().get("enabled"),"false");
+		assertEquals(find(truecasers,"Uppercase_id").getConfig().get("enabled"),"false");
 		
 	}
 

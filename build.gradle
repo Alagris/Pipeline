@@ -10,6 +10,7 @@
 apply plugin: 'java-library'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
+apply plugin: 'antlr'
 
 
 version = '1.14'
@@ -118,8 +119,28 @@ task publishToGit(){
 
 dependencies {
 	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.6'
+	antlr "org.antlr:antlr4:4.7.1"
+  	compile "org.antlr:antlr4-runtime:4.7.1"
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 }
 
+generateGrammarSource {
+    maxHeapSize = "64m"
+    arguments += ['-visitor', '-package', 'net.alagris.parser']
+    outputDirectory = new File("generated-src/antlr/main/net/alagris/parser".toString())
+}
+
+compileJava.dependsOn generateGrammarSource
+sourceSets {
+    generated {
+        java.srcDir 'generated-src/antlr/main/'
+    }
+}
+
+compileJava.source sourceSets.generated.java, sourceSets.main.java
+
+clean{
+    delete "generated-src"
+}
 

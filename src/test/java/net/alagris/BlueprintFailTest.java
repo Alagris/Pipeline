@@ -19,7 +19,7 @@ public class BlueprintFailTest {
 			BlueprintFailTest.class, String.class, GlobalCnfg.class);
 
 	public BlueprintFailTest()
-			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
 		blueprint = loader.load(TestConstants.FAILING);
 	}
 

@@ -18,8 +18,8 @@ public class BlueprintTypedLoaderTest {
 	Group<String> gr;
 	Blueprint<GlobalCnfg> blueprint;
 
-	public BlueprintTypedLoaderTest()
-			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+	public BlueprintTypedLoaderTest() throws JsonProcessingException, IOException, DuplicateIdException,
+			UndefinedAliasException, IllegalIdException, IllegalAliasException {
 		BlueprintTypedLoader<String, GlobalCnfg> loader = new BlueprintTypedLoader<String, GlobalCnfg>(
 				BlueprintTypedLoaderTest.class, String.class, GlobalCnfg.class);
 		blueprint = loader.load(TestConstants.PIPELINE);
@@ -35,7 +35,7 @@ public class BlueprintTypedLoaderTest {
 				blueprint.getGlobal().get("paths", String[].class));
 
 		HashMap<String, Node> nodes = blueprint.collectById();
-		Node preprocessor = nodes.get("Preprocessor-id");
+		Node preprocessor = nodes.get("Preprocessor_id");
 		HashMap<String, Object> preprocessorC = preprocessor.getConfig();
 		assertEquals("Not enabled!", "true", preprocessorC.get("enabled"));
 		assertEquals("Suffix wrong!", "-t", preprocessorC.get("suffix"));
@@ -43,8 +43,8 @@ public class BlueprintTypedLoaderTest {
 		HashMap<String, Object> dictionary = (HashMap<String, Object>) preprocessorC.get("dictionary");
 		assertEquals("dictionary wrong!", "b", dictionary.get("a"));
 		@SuppressWarnings("unchecked")
-		ArrayList<Integer> subList = (ArrayList<Integer>)dictionary.get("b");
-		assertArrayEquals("dictionary wrong!", new Integer[] {1,2,3}, subList.toArray(new Integer[0]));
+		ArrayList<Integer> subList = (ArrayList<Integer>) dictionary.get("b");
+		assertArrayEquals("dictionary wrong!", new Integer[] { 1, 2, 3 }, subList.toArray(new Integer[0]));
 		@SuppressWarnings("unchecked")
 		HashMap<String, Object> subdictionary = (HashMap<String, Object>) dictionary.get("c");
 		assertEquals("subdictionary wrong!", 1, subdictionary.get("i"));
@@ -54,7 +54,7 @@ public class BlueprintTypedLoaderTest {
 
 	@Test
 	public void injection() {
-		Preprocessor preprocessor = (Preprocessor) gr.findPipeworkById("Preprocessor-id").getPipe();
+		Preprocessor preprocessor = (Preprocessor) gr.findPipeworkById("Preprocessor_id").getPipe();
 		assertEquals("Country code wrong!", "ES", preprocessor.country);
 		assertEquals("Not enabled!", true, preprocessor.isEnabled());
 		assertArrayEquals("Ints wrong!", new int[] { 0, 14 }, preprocessor.ints);
@@ -63,15 +63,15 @@ public class BlueprintTypedLoaderTest {
 		assertEquals("dynPaths wrong!", "move", preprocessor.dynPaths.get(1));
 		assertEquals("dynPaths wrong!", "bugs", preprocessor.dynPaths.get(2));
 		assertEquals("dynPaths wrong!", 3, preprocessor.dynPaths.size());
-		
-		assertEquals("id wrong!", "Preprocessor-id", preprocessor.name);
-		assertEquals("id wrong!", "Preprocessor-id", preprocessor.nameDuplicate);
-		
+
+		assertEquals("id wrong!", "Preprocessor_id", preprocessor.name);
+		assertEquals("id wrong!", "Preprocessor_id", preprocessor.nameDuplicate);
+
 		HashMap<String, Object> dictionary = (HashMap<String, Object>) preprocessor.dictionary;
 		assertEquals("dictionary wrong!", "b", dictionary.get("a"));
 		@SuppressWarnings("unchecked")
-		ArrayList<Integer> subList = (ArrayList<Integer>)dictionary.get("b");
-		assertArrayEquals("dictionary wrong!", new Integer[] {1,2,3}, subList.toArray(new Integer[0]));
+		ArrayList<Integer> subList = (ArrayList<Integer>) dictionary.get("b");
+		assertArrayEquals("dictionary wrong!", new Integer[] { 1, 2, 3 }, subList.toArray(new Integer[0]));
 		@SuppressWarnings("unchecked")
 		HashMap<String, Object> subdictionary = (HashMap<String, Object>) dictionary.get("c");
 		assertEquals("subdictionary wrong!", 1, subdictionary.get("i"));

@@ -5,7 +5,7 @@
 	"pipeline": [
 		{
 			"name": "Branching",
-			"id": "Branching-id",
+			"id": "Branching_id",
 			"runAllAlternatives": "true",
 			"config": {
 				"left": "1",
@@ -15,11 +15,11 @@
 				"upperFirst": [
 					{
 						"name": "Lowercase",
-						"id": "Lowercase-id"
+						"id": "Lowercase_id"
 					},
 					{
 						"name": "UppercaseFirst",
-						"id": "Truecaser-id"
+						"id": "Truecaser_id"
 					},
                     {
                         "name": "Emitter",
@@ -56,7 +56,7 @@
                 "prefix": [
                     {
                         "name": "Preprocessor",
-                        "id": "Preprocessor-id",
+                        "id": "Preprocessor_id",
                         "config": {
                             "suffix": "-t"
                         }

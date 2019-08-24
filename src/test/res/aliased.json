@@ -1,4 +1,7 @@
 {
+	"global": {
+		"enabled": true
+	},
 	"aliases": {
 		"truecasers": {
 			"fields": [
@@ -15,7 +18,7 @@
 	"pipeline": [
 		{
 			"name": "Preprocessor",
-			"id": "Preprocessor-id0",
+			"id": "Preprocessor_id0",
 			"config": {
 				"suffix": "-t1"
 			},
@@ -25,7 +28,7 @@
 		},
 		{
 			"name": "Preprocessor",
-			"id": "Preprocessor-id1",
+			"id": "Preprocessor_id1",
 			"config": {
 				"suffix": "-t2"
 			},
@@ -35,7 +38,7 @@
 		},
 		{
 			"name": "Preprocessor",
-			"id": "Preprocessor-id2",
+			"id": "Preprocessor_id2",
 			"config": {
 				"suffix": "-t3"
 			},
@@ -45,7 +48,7 @@
 		},
 		{
 			"name": "Lowercase",
-			"id": "Lowercase-id",
+			"id": "Lowercase_id",
 			"config": {
 				"enabled": "true"
 			},
@@ -55,7 +58,7 @@
 		},
 		{
 			"name": "UppercaseFirst",
-			"id": "Truecaser-id",
+			"id": "Truecaser_id",
 			"config": {
 				"enabled": "true"
 			},
@@ -65,7 +68,7 @@
 		},
 		{
 			"name": "Uppercase",
-			"id": "Uppercase-id",
+			"id": "Uppercase_id",
 			"config": {
 				"enabled": "true"
 			},

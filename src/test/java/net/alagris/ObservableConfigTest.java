@@ -30,7 +30,7 @@ public class ObservableConfigTest {
 	Blueprint<GlobalCnfg> blueprint;
 
 	public ObservableConfigTest()
-			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+			throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
 		BlueprintTypedLoader<String, GlobalCnfg> loader = new BlueprintTypedLoader<String, GlobalCnfg>(
 				BlueprintTypedLoaderTest.class, String.class, GlobalCnfg.class);
 		blueprint = loader.load(TestConstants.OBSERVER_PIPELINE);
@@ -43,7 +43,7 @@ public class ObservableConfigTest {
 		@SuppressWarnings("unchecked")
 		ObservableConfig<String> observed = cnfg.get("observed", ObservableConfig.class);
 		assertEquals("initial", observed.getValue());
-		Observer observerPipe = (Observer) gr.getById("Observer-id").getPipe();
+		Observer observerPipe = (Observer) gr.getById("Observer_id").getPipe();
 		assertEquals("initial", observerPipe.observed.getValue());
 		assertEquals("initial", observerPipe.lastValue);
 		assertEquals("hello initial", gr.process("hello").getValue());

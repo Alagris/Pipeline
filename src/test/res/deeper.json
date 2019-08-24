@@ -14,7 +14,7 @@
         },
         {
             "name": "Branching",
-            "id": "Branching-id",
+            "id": "Branching_id",
             "config": {
                 "left": "1",
                 "right": "2"
@@ -23,11 +23,11 @@
                 "left": [
                     {
                         "name": "Lowercase",
-                        "id": "Lowercase-id"
+                        "id": "Lowercase_id"
                     },
                     {
                         "name": "UppercaseFirst",
-                        "id": "Truecaser-id"
+                        "id": "Truecaser_id"
                     }
                 ],
                 "right": [

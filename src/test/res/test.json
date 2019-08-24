@@ -3,18 +3,18 @@
 	   "str":"aB-43"
 	},
 	"test": {
-		"Preprocessor-id": {
+		"Preprocessor_id": {
 			"input": "aB-43"
 		},
-		"Branching-id": {
+		"Branching_id": {
 			"input": "aB-43-t",
 			"output": "AB-43-T"
 		},
-		"Truecaser-id": {
+		"Truecaser_id": {
 			"input": "",
 			"output": ""
 		},
-		"Lowercase-id": {
+		"Lowercase_id": {
 			"input": "",
 			"output": ""
 		}

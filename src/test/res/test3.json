@@ -3,18 +3,18 @@
        "str":"1 i Love Lasagne"
     },
 	"test": {
-		"Preprocessor-id": {
+		"Preprocessor_id": {
 			"input": "1 i Love Lasagne"
 		},
-		"Branching-id": {
+		"Branching_id": {
 			"input": "1 i Love Lasagne-t",
 			"output": "1 I LOVE LASAGNE-T"
 		},
-		"Truecaser-id": {
+		"Truecaser_id": {
 			"input": "",
 			"output": ""
 		},
-		"Lowercase-id": {
+		"Lowercase_id": {
 			"input": "",
 			"output": ""
 		}

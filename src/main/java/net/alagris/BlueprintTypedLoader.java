@@ -64,32 +64,32 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
     }
 
     public Blueprint<Cnfg> load(File f)
-            throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+            throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
         return Blueprint.load(f, getConfig());
     }
 
     public Blueprint<Cnfg> load(String s)
-            throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+            throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
         return Blueprint.load(s, getConfig());
     }
 
     public Blueprint<Cnfg> load(InputStream i)
-            throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+            throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
         return Blueprint.load(i, getConfig());
     }
 
     public Group<Cargo> make(InputStream in)
-            throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+            throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
         return make(in, getCargo(), getConfig(), this);
     }
 
     public Group<Cargo> make(String json)
-            throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+            throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
         return make(json, getCargo(), getConfig(), this);
     }
 
     public Group<Cargo> make(File f)
-            throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+            throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
         return make(f, getCargo(), getConfig(), this);
     }
 
@@ -114,13 +114,13 @@ public class BlueprintTypedLoader<Cargo, Cnfg extends GlobalConfig> extends Blue
 
     public <UnitTest> GroupTest<Cargo, UnitTest> makeTest(File blueprintFile,
             PipeTestVerifier<Cargo, UnitTest> verifier, Class<UnitTest> unit)
-            throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+            throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
         return makeTest(load(blueprintFile), verifier);
     }
 
     public <UnitTest> GroupTest<Cargo, UnitTest> makeTest(String blueprintJson,
             PipeTestVerifier<Cargo, UnitTest> verifier, Class<UnitTest> unit)
-            throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+            throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
         return makeTest(load(blueprintJson), verifier);
     }
 

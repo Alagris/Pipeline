@@ -17,7 +17,7 @@ public class BlueprintTypedLoaderCoverTest {
 	Group<String> gr;
 	Blueprint<GlobalCnfg> blueprint;
 
-	public BlueprintTypedLoaderCoverTest() throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException {
+	public BlueprintTypedLoaderCoverTest() throws JsonProcessingException, IOException, DuplicateIdException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
 		BlueprintTypedLoader<String, GlobalCnfg> loader = new BlueprintTypedLoader<String, GlobalCnfg>(
 				BlueprintTypedLoaderCoverTest.class, String.class, GlobalCnfg.class);
 		blueprint = loader.load(TestConstants.PIPELINE);
@@ -34,7 +34,7 @@ public class BlueprintTypedLoaderCoverTest {
 				blueprint.getGlobal().get("paths", String[].class));
 
 		HashMap<String, Node> nodes = blueprint.collectById();
-		Node preprocessor = nodes.get("Preprocessor-id");
+		Node preprocessor = nodes.get("Preprocessor_id");
 		HashMap<String, Object> preprocessorC = preprocessor.getConfig();
 		assertEquals("Not enabled!", "true", preprocessorC.get("enabled"));
 		assertEquals("Suffix wrong!", "-new", preprocessorC.get("suffix"));
@@ -42,7 +42,7 @@ public class BlueprintTypedLoaderCoverTest {
 
 	@Test
 	public void injection() {
-		Preprocessor preprocessor = (Preprocessor) gr.findPipeworkById("Preprocessor-id").getPipe();
+		Preprocessor preprocessor = (Preprocessor) gr.findPipeworkById("Preprocessor_id").getPipe();
 
 		assertEquals("Country code wrong!", "PL", preprocessor.country);
 		assertEquals("Not enabled!", true, preprocessor.isEnabled());
@@ -53,8 +53,8 @@ public class BlueprintTypedLoaderCoverTest {
 		assertEquals("dynPaths wrong!", "bugs", preprocessor.dynPaths.get(2));
 		assertEquals("dynPaths wrong!", 3, preprocessor.dynPaths.size());
 		assertEquals("Suffix wrong!", "-new", preprocessor.suffix);
-		assertEquals("id wrong!", "Preprocessor-id", preprocessor.name);
-        assertEquals("id wrong!", "Preprocessor-id", preprocessor.nameDuplicate);
+		assertEquals("id wrong!", "Preprocessor_id", preprocessor.name);
+        assertEquals("id wrong!", "Preprocessor_id", preprocessor.nameDuplicate);
 	}
 
 	@Test

@@ -13,23 +13,23 @@
 		]
 	},
 	"cover": {
-		"Preprocessor-id": {
+		"Preprocessor_id": {
 			"config": {
 				"suffix": "-new"
 			}
 		},
-		"Branching-id": {
+		"Branching_id": {
 			"config": {
 				"left": "10",
 				"right": "20"
 			}
 		},
-		"Truecaser-id": {
+		"Truecaser_id": {
 			"config": {
 				"enabled": false
 			}
 		},
-		"Lowercase-id": {
+		"Lowercase_id": {
 			"config": {
 				"enabled": "false"
 			}

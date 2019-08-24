@@ -19,11 +19,11 @@ public class BlueprintTypedLoaderCmdCoverTest {
 	Blueprint<GlobalCnfg> blueprint;
 
 	public BlueprintTypedLoaderCmdCoverTest() throws JsonProcessingException, IOException, DuplicateIdException,
-			ParseException, InstantiationException, IllegalAccessException, UndefinedAliasException {
+			ParseException, InstantiationException, IllegalAccessException, UndefinedAliasException, IllegalIdException, IllegalAliasException {
 		BlueprintTypedLoader<String, GlobalCnfg> loader = new BlueprintTypedLoader<String, GlobalCnfg>(
 				BlueprintTypedLoaderCmdCoverTest.class, String.class, GlobalCnfg.class);
 		CommandLineToCover cmd = new CommandLineToCover(
-				new String[] { "lang=en-GB", "--Preprocessor-id", "suffix=-cmd", "paths=[one,two,three]" });
+				new String[] { "lang=en-GB", "--Preprocessor_id", "suffix=-cmd", "paths=[one,two,three]" });
 		blueprint = loader.load(TestConstants.PIPELINE);
 		loader.applyCover(blueprint, cmd);
 		gr = loader.make(blueprint);
@@ -38,7 +38,7 @@ public class BlueprintTypedLoaderCmdCoverTest {
 				blueprint.getGlobal().get("paths", String[].class));
 
 		HashMap<String, Node> nodes = blueprint.collectById();
-		Node preprocessor = nodes.get("Preprocessor-id");
+		Node preprocessor = nodes.get("Preprocessor_id");
 		HashMap<String, Object> preprocessorC = preprocessor.getConfig();
 		assertEquals("Not enabled!", "true", preprocessorC.get("enabled"));
 		assertEquals("Suffix wrong!", "-cmd", preprocessorC.get("suffix"));
@@ -49,7 +49,7 @@ public class BlueprintTypedLoaderCmdCoverTest {
 
 	@Test
 	public void injection() {
-		Preprocessor preprocessor = (Preprocessor) gr.findPipeworkById("Preprocessor-id").getPipe();
+		Preprocessor preprocessor = (Preprocessor) gr.findPipeworkById("Preprocessor_id").getPipe();
 
 		assertEquals("Country code wrong!", "GB", preprocessor.country);
 		assertEquals("Not enabled!", true, preprocessor.isEnabled());
@@ -60,8 +60,8 @@ public class BlueprintTypedLoaderCmdCoverTest {
 		assertEquals("dynPaths wrong!", "bugs", preprocessor.dynPaths.get(2));
 		assertEquals("dynPaths wrong!", 3, preprocessor.dynPaths.size());
 		assertEquals("Suffix wrong!", "-cmd", preprocessor.suffix);
-		assertEquals("id wrong!", "Preprocessor-id", preprocessor.name);
-        assertEquals("id wrong!", "Preprocessor-id", preprocessor.nameDuplicate);
+		assertEquals("id wrong!", "Preprocessor_id", preprocessor.name);
+        assertEquals("id wrong!", "Preprocessor_id", preprocessor.nameDuplicate);
 	}
 
 	@Test

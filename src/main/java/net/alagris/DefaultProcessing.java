@@ -2,13 +2,13 @@ package net.alagris;
 
 class DefaultProcessing<Cargo> implements ProcessingCallback<Cargo> {
 
-	private final ProcessingExceptionCallback processingExceptionCallback;
+	private final ProcessingExceptionCallback<Cargo> processingExceptionCallback;
 
 	public DefaultProcessing() {
 		this(null);
 	}
 
-	public DefaultProcessing(ProcessingExceptionCallback processingExceptionCallback) {
+	public DefaultProcessing(ProcessingExceptionCallback<Cargo> processingExceptionCallback) {
 		this.processingExceptionCallback = processingExceptionCallback;
 	}
 
