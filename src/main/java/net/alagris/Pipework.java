@@ -40,7 +40,7 @@ public class Pipework<Cargo> implements AutoCloseable {
 				resultReceiver.receive(result);
 			}
 		}
-		if (runAllAlternatives) {
+		if (isRunAllAlternatives()) {
 			for (Group<Cargo> alt : alternatives.values()) {
 				alt.process(out.getValue(), resultReceiver);
 			}
@@ -69,5 +69,9 @@ public class Pipework<Cargo> implements AutoCloseable {
 	public String getTitle() {
 		return getId() == null ? getPipe().getClass().getSimpleName() : getId();
 	}
+
+    public boolean isRunAllAlternatives() {
+        return runAllAlternatives;
+    }
 
 }
